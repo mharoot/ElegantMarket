@@ -17,12 +17,27 @@ class CustomerTest extends TestCase
 
     }
 
+    public function test_get_customer()
+    {
+        $customer = new Customer();
+        $results = $customer->getCustomer(1);
+        $this->assertTrue(sizeof($results) > 0);
+    }
+
     public function test_get_customer_order()
     {
         $customer = new Customer();
         $results = $customer->getCustomerOrder(90);
         $this->assertTrue(sizeof($results) > 0);
     }
+
+    public function test_get_customer_order_w_no_orders()
+    {
+        $customer = new Customer();
+        $results = $customer->getCustomerOrder(1);
+        $this->assertTrue(sizeof($results) == 0);
+    }
+
 
     public function test_get_customer_orders()
     {

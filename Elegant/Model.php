@@ -89,6 +89,7 @@ class Model extends Database
     public function get($cols = NULL)
     {
         $q = $this->queryBuilder->get($cols);
+        file_put_contents('test.txt', $q);
         $this->query($q);
         $this->bindWhereConditions();
         $class_name = get_class($this->child_class);
@@ -181,17 +182,29 @@ class Model extends Database
         return $this;
     }
     private function filterTableName($table_col_name)
-    {
-        
-        if ( strrpos($table_col_name, $this->table_name.'.') !== null )
+    {   
+        $filter = FALSE;
+        $table = $this->table_name.'.';
+        $m = strlen($table);
+        $n = strlen($table_col_name);
+        for ($i = 0; $i < $m; $i++)
         {
-            $m = strlen($this->table_name.'.');
-            $n = strlen($table_col_name);
-            $table_col_name = substr($table_col_name, $m, $n);
+            if ( substr($table_col_name, $i, 1) === substr($table, $i, 1) )
+            {
+                $filter = TRUE;
+            }
+            else
+            {
+                $filter = FALSE;
+                return $table_col_name;
+            }
+            
         }
 
-        
-
+        if ($filter)
+        {
+            $table_col_name = substr($table_col_name, $m, $n);
+        }
 
         return $table_col_name;
     }

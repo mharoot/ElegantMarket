@@ -38,14 +38,19 @@ class Customer extends Model {
 		return $this->where('id', '=', $id)->delete();
 	}
 
-
-	public function getCustomerOrder($id)
+	public function getCustomer($customer_id)
+	{
+        $primary_key = 'CustomerID';
+        return $this->where($primary_key, '=', $customer_id)->get();
+	}
+	public function getCustomerOrder($customer_id)
 	{
 	
         $primary_key = 'CustomerID';
         $foreign_key = 'CustomerID';
-        return $this->oneToMany('orders', $primary_key, $foreign_key)->where($this->table_name.'.'.$primary_key, '=', $id)->get();
+        return $this->oneToMany('orders', $primary_key, $foreign_key)->where($this->table_name.'.'.$primary_key, '=', $customer_id)->get();
 	}
+	
 	
 	public function getCustomerOrders()
 	{

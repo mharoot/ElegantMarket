@@ -50,11 +50,21 @@ class Controller {
 
             if (isset($_GET['customer-orders']))
             {
-                $data  = $_GET['customer-orders'];
+                $customer_id = $_GET['customer-orders'];
+                $customer_orders = $this->customer_model->getCustomerOrder($customer_id);
+                $customer = null;
 
-                $cols  = array('CustomerID', 'OrderID');
-                $customers = $this->customer_model->getCustomerOrder($data);
-                $customer = $customers[0]; 
+                if(sizeof($customer_orders) > 0) 
+                {
+                    $customer = $customer_orders[0];
+                }
+                else 
+                {
+                    $customer = $this->customer_model->getCustomer($customer_id)[0];
+                }
+
+
+
                 include 'view/templates/header.php';
                 include 'view/pages/customer-orders.php';
                 include 'view/templates/footer.php';

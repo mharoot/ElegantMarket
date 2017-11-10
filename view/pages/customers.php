@@ -24,7 +24,7 @@ ini_set('display_errors',1);
             </td> 
             <td><p>
       <?php
-      echo  $customer->CustomerName.'</p></td> <td><p>'.$customer->Address;
+      echo  $customer->CustomerName.'</p></td> <td><p>'.$customer->Address.', '.$customer->City.', '.$customer->PostalCode.', '.$customer->Country;
       ?>
            </p>
            <form method="POST">
@@ -38,11 +38,16 @@ ini_set('display_errors',1);
 
 	?>
 </table>
+<h1> Insert New Customer </h1>
 <form method="POST">
   <div class="form-group">
-    <input class="form-control" type="text" name="customerName" placeholder="Name" required>
-    <input class="form-control" type="text" name="customerAddress" placeholder="Address" required>
-    <input class="form-control" type="text" pattern="\d+" name="orderAmount" placeholder="Amount" required>
+    <input class="form-control" type="text" name="CustomerName" placeholder="Customer Name" required>
+    <input class="form-control" type="text" name="ContactName" placeholder="Contact Name" required>
+    <input class="form-control" type="text" name="Address" placeholder="Address" required>
+    <input class="form-control" type="text" name="City" placeholder="City" required>
+    <!-- polish postal code pattern covers most cases http://html5pattern.com/Postal_Codes -->
+    <input class="form-control" type="text" name="PostalCode" placeholder="Postal Code" pattern="[0-9]{2}\-[0-9]{3}"  required >
+    <input class="form-control" type="text" name="Country" placeholder="Country" required>
     <input type="submit" class="btn btn-info" value="Submit" name="insert-customer">
   </div>
 </form>

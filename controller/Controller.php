@@ -9,7 +9,7 @@ ALL GET, PUT, DELETE, POST calls go through here for the website
 include_once("model/Customer.php");
 class Controller {
     public $customer_model;
-    public $_routes = ['customers', 'query-builder', 'reset-customers', 'customer-orders', 'delete-customer'];
+    public $_routes = ['customer-orders','customers', 'delete-customer', 'insert-customer', 'query-builder', 'reset-customers'];
     
     public function __construct()  
     {  
@@ -118,30 +118,41 @@ class Controller {
                 $this->redirect();             
             }
 
-            if(isset($_POST['insert_customer']))
+            if(isset($_POST['insert-customer']))
            {
             
-               $name = $_POST['customerName'];
-               $address = $_POST['customerAddress'];
-               $amount = $_POST['orderAmount'];
+               $customer_name = $_POST['CustomerName'];
+               $contact_name  = $_POST['ContactName'];
+               $address       = $_POST['Address'];
+               $city          = $_POST['City'];
+               $postal_code   = $_POST['PostalCode'];
+               $country       = $_POST['Country'];
+               
 
-               $result = $this->customer_model->where('address','=',$address)->where('name','=',$name)->get();
+               
 
-               if($result == NULL)
+               $customer = $this->customer_model->where('Address','=',$address)->where('CustomerName','=',$customer_name)->get()[0];
+               $not_duplicate_entry = $customer == NULL;
+
+               // all fields are required in form otherwise form won't fire 
+               // note this is different for customer-orders since all fields do not have to be filled.
+               $this->customer_model->CustomerName = $customer_name;
+               $this->customer_model->ContactName  = $contact_name;
+               $this->customer_model->Address      = $address;
+               $this->customer_model->City         = $city;
+               $this->customer_model->PostalCode   = $postal_code;
+               $this->customer_model->Country      = $country;
+
+               if( $not_duplicate_entry )
                {
-
-                    $this->customer_model->name = $name;
-                    $this->customer_model->address = $address;
                     $this->customer_model->save();
-                    $this->order_model->amount = $amount;
-                    $this->order_model->customer_id = $this->customer_model->lastInsertId();
-                    $this->order_model->save();
-               }else{
-                
-                    $this->order_model->amount = $amount;
-                    $this->order_model->customer_id = $result[0]->id;
-                    $this->order_model->save();
                }
+               else
+               {
+                   // assume they're trying to update if the name and address are the same
+                   $this->customer_model->where('CustomerID', '=', $customer->CustomerID)->save();
+               }
+
                $this->redirect();
 
            }

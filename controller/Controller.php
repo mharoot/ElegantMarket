@@ -197,7 +197,7 @@ class Controller {
             { 
 
                 $customer_id = $_POST['CustomerID'];
-                $this->customer_model->deleteByTitle($customer_i);
+                $this->customer_model->deleteCustomer($customer_id);
                 $this->redirect();
                
             }

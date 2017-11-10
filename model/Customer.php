@@ -33,9 +33,9 @@ class Customer extends Model {
 		return $this->where('id', '=', 5)->save();
 	}
 
-	public function removeById($id)
+	public function deleteCustomer($customer_id)
 	{
-		return $this->where('id', '=', $id)->delete();
+		return $this->where('CustomerID', '=', $customer_id)->delete();
 	}
 
 	public function getCustomer($customer_id)

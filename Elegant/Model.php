@@ -90,7 +90,6 @@ class Model extends Database
     {
         $q = $this->queryBuilder->get($cols);
         $this->query($q);
-        var_dump($q);
         $this->bindWhereConditions();
         $class_name = get_class($this->child_class);
         $results    = $this->resultsetObject($class_name);
@@ -189,7 +188,6 @@ class Model extends Database
             $m = strlen($this->table_name.'.');
             $n = strlen($table_col_name);
             $table_col_name = substr($table_col_name, $m, $n);
-            var_dump($table_col_name.'testtest');
         }
 
         

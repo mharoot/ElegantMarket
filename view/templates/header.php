@@ -37,9 +37,8 @@
           Demos
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-          <a class="dropdown-item" href=".">Many to Many</a>
-          <a class="dropdown-item" href="./?customerslist">One to Many</a>
-          <form class="dropdown-item" method="POST"><input style="background-color:inherit; border:none; padding:0; margin:0;" type="submit" name="resetBooks" value="Reset Books Table"></form>
+          <a class="dropdown-item" href="./?customers">Customers</a>
+          <form class="dropdown-item" method="POST"><input style="background-color:inherit; border:none; padding:0; margin:0;" type="submit" name="reset-customer" value="Reset Customers"></form>
         </div>
       </li>
     </ul>

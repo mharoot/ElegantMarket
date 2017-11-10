@@ -9,7 +9,7 @@ ALL GET, PUT, DELETE, POST calls go through here for the website
 include_once("model/Customer.php");
 class Controller {
     public $customer_model;
-    public $_routes = ['customers', 'query-builder', 'reset-customers', 'customer-orders'];
+    public $_routes = ['customers', 'query-builder', 'reset-customers', 'customer-orders', 'delete-customer'];
     
     public function __construct()  
     {  
@@ -176,7 +176,6 @@ class Controller {
 
                 if(isset($_POST['book_description']))
                 {
-                    //$this->book_model->where('title','=',$_GET['book'])->update(['description'=>$_POST['book_description']]);//no longer works update is private
                     $this->book_model->description = $_POST['book_description'];
                     $this->book_model->where('title','=',$_GET['book'])->save();
                 }
@@ -194,12 +193,11 @@ class Controller {
         ***********************************************************************/
         else if( $request_method === 'DELETE')
         {
-            if ( isset($_POST['deleteBookByTitleButton']) ) //  was pressed in booklist.php
+            if ( isset($_POST['delete-customer']) )
             { 
 
-                $bookToRemoveTitle = $_POST['deleteBookByTitle'];
-                $this->book_model->deleteByTitle($bookToRemoveTitle);
-                //$_SERVER['SERVER_PORT']
+                $customer_id = $_POST['CustomerID'];
+                $this->customer_model->deleteByTitle($customer_i);
                 $this->redirect();
                
             }

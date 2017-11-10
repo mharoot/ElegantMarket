@@ -46,6 +46,15 @@ class CustomerTest extends TestCase
         $this->assertTrue(sizeof($results) > 0);
     }
 
+    public function test_reset_customers_table()
+    {
+        include_once('Elegant/Database.php');
+        $db_handler = new Database();
+        $q = file_get_contents('sql/resetCustomers.sql');
+        $db_handler->query($q);
+        $this->assertTrue( $db_handler->execute() );
+    }
+
 
     
     

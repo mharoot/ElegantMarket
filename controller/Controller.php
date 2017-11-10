@@ -114,8 +114,7 @@ class Controller {
                 $db_handler = new Database();
                 $q = file_get_contents('sql/resetCustomers.sql');
                 $db_handler->query($q);
-                $db_handler->execute();
-                $this->redirect();
+                echo $db_handler->execute();                
             }
 
             if(isset($_POST['insert_customer']))

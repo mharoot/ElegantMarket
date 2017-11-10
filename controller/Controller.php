@@ -50,9 +50,10 @@ class Controller {
 
             if (isset($_GET['customer-orders']))
             {
+                $data  = $_GET['customer-orders'];
 
                 $cols  = array('CustomerID', 'OrderID');
-                $customers = $this->customer_model->getCustomerOrder();
+                $customers = $this->customer_model->getCustomerOrder($data);
                 include 'view/templates/header.php';
                 include 'view/pages/customer-orders.php';
                 include 'view/templates/footer.php';

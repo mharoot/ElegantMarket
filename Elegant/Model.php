@@ -1,0 +1,307 @@
+<?php
+
+include_once("Database.php");
+include_once("QueryBuilder.php");
+class Model extends Database 
+{
+    private $queryBuilder = NULL;
+    private $child_class  = NULL;
+    public $table_name = NULL;
+    private $child_class_cols = [];
+    private $whereColValBindStack = [];
+
+
+
+    function __construct($child_class = NULL) 
+    {
+        $child_class_that_called_model = '';
+
+        if ($this->table_name === NULL )
+        {
+            $child_class_that_called_model = get_class($child_class);
+            $snake_case = $child_class_that_called_model.'s';
+            $this->table_name = strtolower($snake_case);
+        }
+
+        $this->queryBuilder = new QueryBuilder($this->table_name);
+        $this->child_class = $child_class;
+        parent::__construct();
+        $this->checkTableExist($this->table_name);
+        
+        $table_cols = $this->describe($this->table_name);
+
+        //dynamically creating child class properties in construct
+        foreach ($table_cols as $col)
+        {
+            $this->child_class->{$col} = NULL;
+            array_push($this->child_class_cols, $col);
+        }
+
+    }
+
+    public function save() // returns boolean
+    {
+        $result = FALSE;
+        if (!$this->queryBuilder->hasWhereClause) {
+            $result = $this->insert($this->getChildProps());
+        } else {
+            $result = $this->update($this->getChildProps());
+        }
+        return $result;
+    }
+
+    public function getChildProps()
+    {
+        $class_name = get_class($this->child_class);
+        $class_vars = get_class_vars($class_name);
+        $object_vars  = get_object_vars($this->child_class);
+        $child_props = [];
+        foreach ($this->child_class_cols as $index => $property_name) 
+        {
+            //echo "$property_name : $value\n";
+            
+            if( $object_vars[$property_name] !== NULL )
+                $child_props[$property_name] = $object_vars[$property_name];
+        }
+        
+        return $child_props;
+    }
+
+    public function all() 
+    {        
+        $q = $this->queryBuilder->all();
+        $this->query($q);
+        $class_name = get_class($this->child_class);
+        $results = $this->resultsetObject($class_name);
+
+        return $results;
+    }
+
+    private function bindWhereConditions()
+    {
+        while (sizeof($this->whereColValBindStack))
+        {
+            $col_val = array_pop($this->whereColValBindStack);
+            $this->bind(':'.$col_val[0], $col_val[1]);
+        }
+    }
+
+    public function get($cols = NULL)
+    {
+        $q = $this->queryBuilder->get($cols);
+        $this->query($q);
+        var_dump($q);
+        $this->bindWhereConditions();
+        $class_name = get_class($this->child_class);
+        $results    = $this->resultsetObject($class_name);
+
+        return $results;
+    }
+
+
+
+    public function delete()
+    {
+        $q = $this->queryBuilder->delete();
+        if ($q == '')
+        {
+             //redirect('error404.php');
+            return false;
+        }
+        $this->query($q);
+        $this->bindWhereConditions();
+        return $this->execute();
+    }
+
+
+    private function update($col_val_pairs)
+    {
+        $q = $this->queryBuilder->update($col_val_pairs);
+        if ($q == '')
+        {
+             //redirect('error404.php');
+            return false;
+        }
+       
+        // prepare the query before binding
+        $this->query($q);
+        reset($col_val_pairs);
+
+        // PDO security of update
+        while ( list( $key, $val ) = each( $col_val_pairs ) ) 
+        {
+            $this->bind(':'.$key, $val);
+        }
+
+        $this->bindWhereConditions();
+
+        
+
+        return $this->execute();
+    }
+
+    private function insert($col_val_pairs)
+    {
+        $q = $this->queryBuilder->insert($col_val_pairs);
+        if ($q == '')
+        {
+             // redirect('error404.php');
+            return false;
+        }
+
+        // prepare the query before binding
+        $this->query($q);
+        reset($col_val_pairs);
+        // PDO security of insert
+        while ( list( $key, $val ) = each( $col_val_pairs ) ) 
+        {
+            $this->bind(':'.$key, $val);
+        }
+                
+        return $this->execute();
+    }
+
+
+    public function where ($col_name, $arg2, $arg3 )
+    {
+        
+        $this->queryBuilder->where($col_name, $arg2);
+        $col_name = $this->filterTableName($col_name);
+        
+        
+        // lets build a stack of where col arg val statements so we can pop and bind clean sanitized input
+        array_push($this->whereColValBindStack, [$col_name, $arg3]);
+
+        // after update delete or get is called we pop the stack till its empty binding the parameters  array_pop($stack);
+       
+        // this will go in update, delete, and get 
+        // array_pop($this->whereColValBindStack)
+        // $this->bind(':'.$col_name, $arg3);
+        
+
+        return $this;
+    }
+    private function filterTableName($table_col_name)
+    {
+        
+        if ( strrpos($table_col_name, $this->table_name.'.') !== null )
+        {
+            $m = strlen($this->table_name.'.');
+            $n = strlen($table_col_name);
+            $table_col_name = substr($table_col_name, $m, $n);
+            var_dump($table_col_name.'testtest');
+        }
+
+        
+
+
+        return $table_col_name;
+    }
+
+
+
+
+
+    public function orWhere ($col_name, $arg2, $arg3 ) 
+    {
+        $this->queryBuilder->orWhere($col_name, $arg2);
+        $col_name = $this->filterTableName($col_name);        
+        array_push($this->whereColValBindStack, [$col_name, $arg3]);
+        return $this;
+    }
+
+
+
+
+
+	public function manyToMany($table_name,$junction_table,$this_primary_key,$primary_key) 
+    {
+        $this->checkTableExist($table_name);
+        $this->checkTableExist($junction_table);
+        $this->queryBuilder->manyToMany($table_name,$junction_table,$this_primary_key,$primary_key);
+        return $this;
+    }
+	
+
+
+    public function oneToOne($table_name, $primary_key, $foreign_key) 
+    { 
+        $this->checkTableExist($table_name);
+        $this->queryBuilder->oneToOne($table_name, $primary_key, $foreign_key);
+        return $this;
+    }
+
+
+    public function oneToMany($table_name, $primary_key, $foreign_key) 
+    { 
+        $this->checkTableExist($table_name);
+        $this->queryBuilder->oneToMany($table_name, $primary_key, $foreign_key);
+        return $this;
+    }
+
+
+
+
+
+
+
+
+
+    /*************************************************************************
+     *                         UTILITY FUNCTIONS
+     *************************************************************************/
+
+    private function checkTableExist ($table_name = NULL) 
+    { 
+        // check if developer remembered to give table name
+        if ($this->table_name === NULL)
+        {
+            redirect('error404.php');
+        }
+
+        // check if (this table) or (the table we are trying to join) name is correct or 
+        $tableExists = $this->checkTableExistHelper($table_name);
+        if (!$tableExists)
+        {
+            redirect('error404.php');
+        }
+    }
+
+
+
+
+
+
+    private function checkTableExistHelper ($table_name) 
+    {
+
+        if ($table_name == NULL) 
+        {
+            // then we are checking for the existence of this models table
+            $this->query("SHOW TABLES LIKE '".$this->table_name."'");
+        } 
+        else 
+        {
+            // we are checking for the table we are trying to join
+            $this->query("SHOW TABLES LIKE '".$table_name."'");
+        }
+
+        $result = $this->execute();
+
+        return $this->rowCount($result) > 0;
+    }
+
+
+
+
+
+    private function redirect ($url) 
+    {
+        ob_start();
+        header('Location: '.$url);
+        ob_end_flush();
+        die();
+    }
+}
+
+?>

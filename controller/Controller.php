@@ -54,6 +54,7 @@ class Controller {
 
                 $cols  = array('CustomerID', 'OrderID');
                 $customers = $this->customer_model->getCustomerOrder($data);
+                $customer = $customers[0]; 
                 include 'view/templates/header.php';
                 include 'view/pages/customer-orders.php';
                 include 'view/templates/footer.php';

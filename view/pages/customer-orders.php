@@ -1,5 +1,5 @@
 <div class="jumbotron">
-<h2> <?php echo $customers[0]->CustomerName?>'s Orders</h2>
+<h2> <?php echo $customer->CustomerName?>'s Orders</h2>
 <table class="table table-hover">
 	<thead>
       <tr>

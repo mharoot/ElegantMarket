@@ -293,7 +293,6 @@ insert_statement3:
             $m = strlen($this->table_name.'.');
             $n = strlen($table_col_name);
             $table_col_name = substr($table_col_name, $m, $n);
-            var_dump($table_col_name.'testtest');
         }
 
         

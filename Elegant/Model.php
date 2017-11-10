@@ -89,7 +89,6 @@ class Model extends Database
     public function get($cols = NULL)
     {
         $q = $this->queryBuilder->get($cols);
-        file_put_contents('test.txt', $q);
         $this->query($q);
         $this->bindWhereConditions();
         $class_name = get_class($this->child_class);

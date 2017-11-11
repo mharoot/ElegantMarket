@@ -180,33 +180,48 @@ class Model extends Database
 
         return $this;
     }
-    private function filterTableName($table_col_name)
-    {   
-        $filter = FALSE;
-        $table = $this->table_name.'.';
-        $m = strlen($table);
-        $n = strlen($table_col_name);
-        for ($i = 0; $i < $m; $i++)
-        {
-            if ( substr($table_col_name, $i, 1) === substr($table, $i, 1) )
-            {
-                $filter = TRUE;
-            }
-            else
-            {
-                $filter = FALSE;
-                return $table_col_name;
-            }
-            
+  
+/**
+ * @filterTableNames: Assumes all expressions from within a child class are on the primary table.
+ * For example, $this->oneToMany('orders', $primary_key, $foreign_key)
+ *                   ->where($this->table_name.'.'.$primary_key, '=', $customer_id)
+ *                   ->get();
+ * 
+ * @Todo: 
+ * Change the assumption for any table.
+ * For example, $this->oneToMany('orders', $primary_key, $foreign_key)
+ *                   ->where(any_table_name.'.'.$primary_key, '=', $customer_id)
+ *                   ->get();
+ * 
+ * @param $table_col_name : primary table
+ * 
+ * 
+ * 
+ */
+  
+private function filterTableName($table_col_name)
+{   
+    $filter = FALSE;
+    $m = 0;
+    $n = strlen($table_col_name);
+    for ($i = 0; $i < $n; $i++)//$m; $i++)
+    {
+        if ( substr($table_col_name, $i, 1) === '.' )// substr($table, $i, 1) )
+        {            
+            $filter = TRUE;
+            $m = $i + 1;
         }
-
-        if ($filter)
-        {
-            $table_col_name = substr($table_col_name, $m, $n);
-        }
-
-        return $table_col_name;
     }
+
+    if ($filter)
+    {
+        $table_col_name = substr($table_col_name, $m, $n);
+    }
+
+    return $table_col_name;
+
+}
+
 
 
 

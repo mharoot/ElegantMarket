@@ -15,6 +15,7 @@ class QueryBuilder
     private $isOneToMany;
     private $query;
     private $table_name;
+    private $tableNames = [];
 
 
 
@@ -67,15 +68,163 @@ delete_multiple_table_statement2:
         {
             return '';
         }
- 
+
         $query ="DELETE FROM ".$this->table_name;
  
+        if ($this->isOneToMany || $this->isOneToOne)
+        {
+            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
+            // assuming order of table names does not matter we can simply pop however if we are chaining relations which has been done in
+            // elegant-bookstore then order matters, we have to be careful so maybe we should not chain relations at all? well see.
+            
+            $query = "DELETE ";
+            $query.= array_pop($this->tableNames).', ';
+            $query.= array_pop($this->tableNames).' FROM ';
+        }
+
+        if ($this->isManyToMany)
+        {
+            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
+            // assuming order of table names does not matter
+            
+            $query = "DELETE ";
+            $query.= array_pop($this->tableNames).', ';
+            $query.= array_pop($this->tableNames).' FROM ';
+        }
+        
+ 
         $query .= $this->query;
+        $this->resetProperties();
+        // var_dump($query);
+        return $query;
+    }
+
+
+/**
+ * @filterTableNames: Assumes all expressions from within a child class are on the primary table.
+ * For example, $this->oneToMany('orders', $primary_key, $foreign_key)
+ *                   ->where($this->table_name.'.'.$primary_key, '=', $customer_id)
+ *                   ->get();
+ * 
+ * @Todo: 
+ * Change the assumption for any table.
+ * For example, $this->oneToMany('orders', $primary_key, $foreign_key)
+ *                   ->where(any_table_name.'.'.$primary_key, '=', $customer_id)
+ *                   ->get();
+ * 
+ * @param $table_col_name : primary table
+ * 
+ * 
+ * 
+ */
+  
+    private function filterTableName($table_col_name)
+    {   
+        $filter = FALSE;
+        $m = 0;
+        $n = strlen($table_col_name);
+        for ($i = 0; $i < $n; $i++)//$m; $i++)
+        {
+            if ( substr($table_col_name, $i, 1) === '.' )// substr($table, $i, 1) )
+            {                
+                $filter = TRUE;
+                $m = $i + 1;
+            }
+        }
+
+        if ($filter)
+        {
+            $table_col_name = substr($table_col_name, $m, $n);
+        }
+
+        return $table_col_name;
+    }
+
+
+
+/*
+// insert ---------  http://dev.mysql.com/doc/refman/5.6/en/insert.html  -------------------------
+insert_statements :
+	insert_statement1 | insert_statement2 | insert_statement3
+;
+
+insert_header:
+	INSERT (LOW_PRIORITY | HIGH_PRIORITY)? (IGNORE_SYM)?
+	(INTO)? table_spec 
+	(partition_clause)?
+;
+
+insert_subfix:
+	ON DUPLICATE_SYM KEY_SYM UPDATE column_spec EQ_SYM expression (COMMA column_spec EQ_SYM expression)*
+;
+
+insert_statement1:
+	insert_header
+	(column_list)? 
+	value_list_clause
+	( insert_subfix )?
+;
+value_list_clause:	(VALUES | VALUE_SYM) column_value_list (COMMA column_value_list)*;
+column_value_list:	LPAREN (bit_expr|DEFAULT) (COMMA (bit_expr|DEFAULT) )* RPAREN ;
+
+insert_statement2:
+	insert_header
+	set_columns_cluase
+	( insert_subfix )?
+;
+set_columns_cluase:	SET_SYM set_column_cluase ( COMMA set_column_cluase )*;
+set_column_cluase:	column_spec EQ_SYM (expression|DEFAULT) ;
+
+insert_statement3:
+	insert_header
+	(column_list)? 
+	select_expression
+	( insert_subfix )?
+;
+*/
+    public function insert($col_val_pairs)
+    {
+
+        /*
+            INSERT INTO table_name ( field1, field2,...fieldN ) VALUES ( value1, value2,...valueN );
+        */
+        reset($col_val_pairs);
+        $query ="INSERT INTO ".$this->table_name." (";
+        
+        
+        $prefix = '';
+        $n = sizeof($col_val_pairs) - 1;
+        $i = 0;
+        while ( list( $key, $val ) = each( $col_val_pairs ) ) 
+        {
+            $query .= " ".$prefix.$key;
+            if($i != $n)
+            {
+                $i++;
+                $query .= ",";
+            }
+
+        }
+        $query .= " ) VALUES (";
+        
+
+        reset($col_val_pairs);
+        $i = 0;
+        while ( list( $key, $val ) = each( $col_val_pairs ) ) 
+        {
+            $query .= " :".$key;  // 'INSERT INTO users (user_type, first_name, last_name) VALUES (:user_type, :first_name, :last_name)'
+            if($i != $n)
+            {
+                $i++;
+                $query .= ",";
+            }
+
+        }
+        $query .= " )";
         $this->resetProperties();
         return $query;
     }
 
-    
 /*
 select ------  http://dev.mysql.com/doc/refman/5.6/en/select.html  -------------------------------
 select_statement:
@@ -135,21 +284,21 @@ select_expression:
 /*
 // update --------  http://dev.mysql.com/doc/refman/5.6/en/update.html  ------------------------
 update_statements :
-	single_table_update_statement | multiple_table_update_statement
+single_table_update_statement | multiple_table_update_statement
 ;
 
 single_table_update_statement: 
 UPDATE (LOW_PRIORITY)? (IGNORE_SYM)? table_reference
-	set_columns_cluase
-	(where_clause)?
-	(orderby_clause)?
-	(limit_clause)?
+set_columns_cluase
+(where_clause)?
+(orderby_clause)?
+(limit_clause)?
 ;
 
 multiple_table_update_statement: 
-	UPDATE (LOW_PRIORITY)? (IGNORE_SYM)? table_references
-	set_columns_cluase
-	(where_clause)?
+UPDATE (LOW_PRIORITY)? (IGNORE_SYM)? table_references
+set_columns_cluase
+(where_clause)?
 ;
 */
     public function update($col_val_pairs)
@@ -201,117 +350,13 @@ multiple_table_update_statement:
     }
 
 
-/*
-// insert ---------  http://dev.mysql.com/doc/refman/5.6/en/insert.html  -------------------------
-insert_statements :
-	insert_statement1 | insert_statement2 | insert_statement3
-;
 
-insert_header:
-	INSERT (LOW_PRIORITY | HIGH_PRIORITY)? (IGNORE_SYM)?
-	(INTO)? table_spec 
-	(partition_clause)?
-;
 
-insert_subfix:
-	ON DUPLICATE_SYM KEY_SYM UPDATE column_spec EQ_SYM expression (COMMA column_spec EQ_SYM expression)*
-;
 
-insert_statement1:
-	insert_header
-	(column_list)? 
-	value_list_clause
-	( insert_subfix )?
-;
-value_list_clause:	(VALUES | VALUE_SYM) column_value_list (COMMA column_value_list)*;
-column_value_list:	LPAREN (bit_expr|DEFAULT) (COMMA (bit_expr|DEFAULT) )* RPAREN ;
 
-insert_statement2:
-	insert_header
-	set_columns_cluase
-	( insert_subfix )?
-;
-set_columns_cluase:	SET_SYM set_column_cluase ( COMMA set_column_cluase )*;
-set_column_cluase:	column_spec EQ_SYM (expression|DEFAULT) ;
-
-insert_statement3:
-	insert_header
-	(column_list)? 
-	select_expression
-	( insert_subfix )?
-;
-*/
-    public function insert($col_val_pairs)
-    {
-
-        /*
-            INSERT INTO table_name ( field1, field2,...fieldN ) VALUES ( value1, value2,...valueN );
-        */
-        reset($col_val_pairs);
-        $query ="INSERT INTO ".$this->table_name." (";
-        
-     
-        $prefix = '';
-        $n = sizeof($col_val_pairs) - 1;
-        $i = 0;
-        while ( list( $key, $val ) = each( $col_val_pairs ) ) 
-        {
-            $query .= " ".$prefix.$key;
-            if($i != $n)
-            {
-                $i++;
-                $query .= ",";
-            }
-
-        }
-        $query .= " ) VALUES (";
-       
-
-        reset($col_val_pairs);
-        $i = 0;
-        while ( list( $key, $val ) = each( $col_val_pairs ) ) 
-        {
-            $query .= " :".$key;  // 'INSERT INTO users (user_type, first_name, last_name) VALUES (:user_type, :first_name, :last_name)'
-            if($i != $n)
-            {
-                $i++;
-                $query .= ",";
-            }
-
-        }
-        $query .= " )";
-        $this->resetProperties();
-        return $query;
-    }
 
     
-    private function filterTableName($table_col_name)
-    {   
-        $filter = FALSE;
-        $table = $this->table_name.'.';
-        $m = strlen($table);
-        $n = strlen($table_col_name);
-        for ($i = 0; $i < $m; $i++)
-        {
-            if ( substr($table_col_name, $i, 1) === substr($table, $i, 1) )
-            {
-                $filter = TRUE;
-            }
-            else
-            {
-                $filter = FALSE;
-                return $table_col_name;
-            }
-            
-        }
 
-        if ($filter)
-        {
-            $table_col_name = substr($table_col_name, $m, $n);
-        }
-
-        return $table_col_name;
-    }
         
    /**
     * 
@@ -434,8 +479,9 @@ insert_statement3:
     public function oneToMany($table_name, $primary_key, $foreign_key) { 
         $this->isOneToMany = TRUE;
         // void function will be part of query building
-
-        $this->query = $this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key;
+        array_push($this->tableNames, $this->table_name);
+        array_push($this->tableNames, $table_name);
+        $this->query = " (".$this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
         return $this;
         
     }
@@ -496,13 +542,12 @@ insert_statement3:
         {
             $final_query .= $this->query;
             $this->resetProperties();
-            return $final_query;
         }  
         else // get has been called all by itself
         {
             $this->resetProperties();
-            return $final_query;
         }
+        return $final_query;
     }
 
 

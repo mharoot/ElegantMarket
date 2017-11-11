@@ -38,6 +38,48 @@ class CustomerTest extends TestCase
         $this->assertTrue(sizeof($results) == 0);
     }
 
+    public function test_get_customer_order_2()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 90;
+        $customer = new Customer();
+        $results = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->get();
+        $this->assertTrue(sizeof($results) > 0);
+
+    }
+
+    public function test_get_customer_order_w_no_orders_2()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 1;
+        $customer = new Customer();
+        $results = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->get();
+        $this->assertTrue(sizeof($results) == 0);
+    }
+
+    /*
+    public function test_get_left_join_customer_w_no_orders_2()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 1;
+        $customer = new Customer();
+        $results = $customer->leftJoin('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->get();
+        $this->assertTrue(sizeof($results) > 0);
+    }
+    */
+
+    public function test_delete_oneToMany_where()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 1;
+        $customer = new Customer();
+        $result = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->delete();
+        $this->assertTrue($result);
+    }
 
     public function test_get_customer_orders()
     {

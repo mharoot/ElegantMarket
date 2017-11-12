@@ -4,7 +4,7 @@ Online Nation Wide E-Commerce Mock Up that demonstrates Elegant Framework featur
 
 #RelationChaining
 In this version of elegant it will not be allowed.
-The trade off is a better interaction with CRUD operations and a relaion.
+The trade off is a better interaction with CRUD operations and relations.
 
 
 

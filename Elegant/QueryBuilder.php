@@ -576,6 +576,7 @@ set_columns_cluase
 
 	public function manyToMany ( $table_name, $junction_table, $this_primary_key, $primary_key) 
     {
+        $this->isRelationChainRuleFollowed();
         /*SELECT * from books INNER JOIN books_authors ON (books.book_id=books_authors.book_id) INNER JOIN authors ON (books_authors.author_id = authors.author_id) where 1*/
 
         $this->isManyToMany = TRUE;
@@ -594,11 +595,30 @@ set_columns_cluase
 	
 
 
+    private function isRelationChainRuleFollowed()
+    {
+        if ( $this->isManyToMany || $this->isOneToMany || $this->isOneToOne )
+        {
+            session_start();
+            $_SESSION['error-message'] = "You may not chain relations.  Consider using join functions for specific joins";
+            session_write_close();
+            $this->redirect ('error404.php');
+        }
+        
+    }
 
+    private function redirect ($url) 
+    {
+        ob_start();
+        header('Location: '.$url);
+        ob_end_flush();
+        die();
+    }
 
 
     public function oneToOne ( $table_name, $primary_key, $foreign_key) 
     { 
+        $this->isRelationChainRuleFollowed();
         $this->isOneToOne = TRUE;
         // void function will be part of query building
 
@@ -611,6 +631,7 @@ set_columns_cluase
     }
 
     public function oneToMany($table_name, $primary_key, $foreign_key) { 
+        $this->isRelationChainRuleFollowed();
         $this->isOneToMany = TRUE;
         // void function will be part of query building
         array_push($this->tableNames, $this->table_name);

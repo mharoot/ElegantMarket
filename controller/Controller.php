@@ -9,7 +9,7 @@ ALL GET, PUT, DELETE, POST calls go through here for the website
 include_once("model/Customer.php");
 class Controller {
     public $customer_model;
-    public $_routes = ['customer-orders','customers', 'delete-customer', 'insert-customer', 'query-builder', 'reset-customers'];
+    public $_routes = ['customer-orders','customers', 'delete-customer', 'insert-customer', 'query-builder', 'reset-customers', 't'];
     
     public function __construct()  
     {  
@@ -47,6 +47,12 @@ class Controller {
     {
         if($_SERVER['REQUEST_METHOD'] == 'GET')
         {
+
+            if (isset($_GET['t']))
+            {
+                //illegal chaining takes to 404 with error message to guide users
+                $this->customer_model->oneToOne('','','')->oneToOne('','','')->get();
+            }
 
             if (isset($_GET['customer-orders']))
             {

@@ -2,6 +2,11 @@
 Online Nation Wide E-Commerce Mock Up that demonstrates Elegant Framework features.
 
 
+#RelationChaining
+In this version of elegant it will not be allowed
+
+
+
 <pre>
 /*
 --------------------------------------------DELETE-------------------------------------------------

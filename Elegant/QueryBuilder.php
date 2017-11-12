@@ -200,8 +200,7 @@ delete_statements => DELETE_SYM delete_multiple_table_statement1
 
         if ($this->isManyToMany)
         {
-            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
-            // assuming order of table names does not matter
+            // case "store no longer carries a certain category": delete all products with that category and the category itself 
             $query = "DELETE ";
             $query.= array_pop($this->tableNames).', ';
             $query.= array_pop($this->tableNames).', ';
@@ -630,7 +629,8 @@ set_columns_cluase
         return $this;
     }
 
-    public function oneToMany($table_name, $primary_key, $foreign_key) { 
+    public function oneToMany($table_name, $primary_key, $foreign_key) 
+    { 
         $this->isRelationChainRuleFollowed();
         $this->isOneToMany = TRUE;
         // void function will be part of query building

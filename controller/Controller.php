@@ -56,6 +56,45 @@ class Controller {
 
             if (isset($_GET['customer-orders']))
             {
+/*
+    using a join vs using a left join:
+
+    Optimization plan 1: The second clause can be optimized using limit 1 since were only expected 1 result for 1 customer id. 
+    Optimization plan 2: Take out second clause use left join instead where the customer is the left side, note maybe oneToMany should be a left join. 
+                            Note it could be a right join. However, I like to think left to right as if I am writing a sentence so going with  left join 
+                            is ideal.  
+
+
+    
+
+
+    using a join:
+    - if a customer has not placed any orders, which many be more common than you think,
+    - then two query executions are made to the server because the first query does 
+    - not return anything.  It's obvious this may waste time but lets compare by running
+    - MySQL UNIT TESTS
+    -
+    - 1st query: SELECT * FROM customers JOIN orders ON (Customers.CustomerID = Orders.CustomerID) WHERE customers.CustomerID = 1
+            result:  MySQL returned an empty result set (i.e. zero rows). (Query took 0.0023 seconds.)
+
+    - 2nd query: SELECT * FROM customers WHERE CustomerID = 1;
+            result:  MySQL returned an empty result set (i.e. zero rows). (Query took 0.0012 seconds.)
+
+    - limit in queries: same query performs 20-33% better when were expecting one result
+        SELECT * FROM customers WHERE CustomerID = 1 LIMIT 1;
+        result:  MySQL returned an empty result set (i.e. zero rows). (Query took 0.0008 seconds.)
+
+        MySQL returned an empty result set (i.e. zero rows). (Query took 0.0016 seconds.)
+        SELECT * FROM customers JOIN orders ON (Customers.CustomerID = Orders.CustomerID) WHERE customers.CustomerID = 1 
+
+    using a left join:
+    - we only need to run one query to find out this customer has not placed any orders.
+        Showing rows 0 - 0 (1 total, Query took 0.0020 seconds.)
+        SELECT * FROM customers LEFT JOIN orders ON (Customers.CustomerID = Orders.CustomerID) WHERE customers.CustomerID = 1
+    - the join takes the same amount of time.
+
+
+*/
                 $customer_id = $_GET['customer-orders'];
                 $customer_orders = $this->customer_model->getCustomerOrder($customer_id);
                 $customer = null;

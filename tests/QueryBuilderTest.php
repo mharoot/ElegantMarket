@@ -17,6 +17,27 @@ class QueryBuilderTest extends TestCase
         $queryBuilder = new QueryBuilder($table_name);
         $this->assertEquals($queryBuilder->all(), 'SELECT * FROM '.$table_name);
     }
+
+/*
+
+    public function test_join_chain()
+    {
+        $queryToMatch = 'SELECT * FROM customers JOIN orders ON (customers.CustomerID=orders.CustomerID) JOIN orderdetails ON (orders.OrderID=orderdetails.OrderID)';
+        $queryBuilder = new QueryBuilder('customers');
+
+        // two joins chained together
+        $qbQuery      = $queryBuilder->join('orders', 'customers.CustomerID', 'orders.CustomerID')
+                                     ->join('orderdetails', 'orders.OrderID', '=', 'orderdetails.OrderID')
+                                     ->get();
+
+        $this->assertEquals($qbQuery, $queryToMatch);
+
+    }
+
+*/
+
+
+
 /*  this test only runs when i turn QueryBuilder->query into public, it passed and is no longer needed
     public function test_select()
     {

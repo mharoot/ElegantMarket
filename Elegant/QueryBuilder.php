@@ -636,7 +636,7 @@ set_columns_cluase
         // void function will be part of query building
         array_push($this->tableNames, $this->table_name);
         array_push($this->tableNames, $table_name);
-        $this->query = " (".$this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
+        $this->query = " (".$this->table_name." LEFT JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
         return $this;
         
     }

@@ -200,10 +200,8 @@ delete_statements => DELETE_SYM delete_multiple_table_statement1
 
         if ($this->isManyToMany)
         {
-            // case "store no longer carries a certain category": delete all products with that category and the category itself 
+            // A delete in a many to many relationship only deletes from the junction table
             $query = "DELETE ";
-            $query.= array_pop($this->tableNames).', ';
-            $query.= array_pop($this->tableNames).', ';
             $query.= array_pop($this->tableNames).' FROM ';
         }
         
@@ -570,10 +568,19 @@ set_columns_cluase
 
 
 
-
-
-
-	public function manyToMany ( $table_name, $junction_table, $this_primary_key, $primary_key) 
+    /**
+     * @task:
+     *      C: Inserts into junction_table only
+     *      R: reads  from ft,jt,pt
+     *      U: updates junction_table only
+     *      D: deletes from junction_table only
+     * 
+     * @param $ft   = foreign table
+     * @param $jt   = junction table
+     * @param $ptpk = primary table primary key
+     * @param $ftpk = foreign table primary key
+     */
+	public function manyToMany ( $ft, $jt, $ptpk, $ftpk) 
     {
         $this->isRelationChainRuleFollowed();
         /*SELECT * from books INNER JOIN books_authors ON (books.book_id=books_authors.book_id) INNER JOIN authors ON (books_authors.author_id = authors.author_id) where 1*/
@@ -582,11 +589,11 @@ set_columns_cluase
 
         if($this->query == '')
         {
-            $this->query = $this->table_name." JOIN ".$junction_table." ON (".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key.") JOIN ". $table_name." ON (".$junction_table.".".$primary_key."=".$table_name.".".$primary_key.")";
+            $this->query = $this->table_name." JOIN ".$jt." ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") JOIN ". $ft." ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")";
         }
         else
         {
-             $this->query .= " JOIN ".$junction_table." ON (".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key.") JOIN ". $table_name." ON (".$junction_table.".".$primary_key."=".$table_name.".".$primary_key.")";
+             $this->query .= " JOIN ".$jt." ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") JOIN ". $ft." ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")";
         }
 
         return $this;

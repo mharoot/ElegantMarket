@@ -15,7 +15,7 @@ class QueryBuilder
     private $isOneToMany;
     private $query;
     private $table_name;
-    private $tableNames = [];
+    private $relationTable;
 
 
 
@@ -187,22 +187,12 @@ delete_statements => DELETE_SYM delete_multiple_table_statement1
         $query ="DELETE FROM ".$this->table_name;
  
         // delete_multiple_table_statement1: note it could be like delete_multiple_table_statement2:
-        if ($this->isOneToMany || $this->isOneToOne)
-        {
-            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
-            // assuming order of table names does not matter we can simply pop however if we are chaining relations which has been done in
-            // elegant-bookstore then order matters, we have to be careful so maybe we should not chain relations at all? well see.
-            
-            $query = "DELETE ";
-            $query.= array_pop($this->tableNames).', ';
-            $query.= array_pop($this->tableNames).' FROM ';
-        }
-
-        if ($this->isManyToMany)
-        {
-            // A delete in a many to many relationship only deletes from the junction table
-            $query = "DELETE ";
-            $query.= array_pop($this->tableNames).' FROM ';
+        if ($this->isOneToMany || $this->isOneToOne || $this->isManyToMany)
+        {        
+            // A delete in a many to many relationship only deletes from the junction table and primary table
+            //  ....       a one  to  one relationship only deletes from the foreign table and primary table
+            // .......     a one  to many relationship only deletes from the foreign table and primary table
+            $query = "DELETE ".$this->table_name.', '.$this->relationTable.' FROM ';
         }
         
  
@@ -570,11 +560,11 @@ set_columns_cluase
 
     /**
      * @task:
-     *      C: Inserts into junction_table only
+     *      C: Inserts into junction_table, and primary table
      *      R: reads  from ft,jt,pt
-     *      U: updates junction_table only
-     *      D: deletes from junction_table only
-     * @about:
+     *      U: updates junction_table and primary table
+     *      D: deletes from junction_table and primary table
+     * 
      *      The assumption of a naming convention for colum names inside jts to match the pt and ft it is related to
      *      ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") 
      *      ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")
@@ -587,18 +577,16 @@ set_columns_cluase
 	public function manyToMany ( $ft, $jt, $ptpk, $ftpk) 
     {
         $this->isRelationChainRuleFollowed();
-        /*SELECT * from books INNER JOIN books_authors ON (books.book_id=books_authors.book_id) INNER JOIN authors ON (books_authors.author_id = authors.author_id) where 1*/
-
         $this->isManyToMany = TRUE;
 
         if($this->query == '')
         {
-            $this->query = $this->table_name." JOIN ".$jt." ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") JOIN ". $ft." ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")";
+            $this->query = $this->table_name;
         }
-        else
-        {
-             $this->query .= " JOIN ".$jt." ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") JOIN ". $ft." ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")";
-        }
+
+        $this->query .=" JOIN ".$jt." ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") JOIN ". $ft." ON (".$ft.".".$ftpk."=".$jt.".".$ftpk.")";
+        $this->relationTable = $jt; // updates, deletes, and inserts are all done to the junction table and primary tables in manyToMany Relations
+
 
         return $this;
     }
@@ -626,28 +614,23 @@ set_columns_cluase
     }
 
 
-    public function oneToOne ( $table_name, $primary_key, $foreign_key) 
+    public function oneToOne ( $ft, $ptpk, $ftpk) 
     { 
         $this->isRelationChainRuleFollowed();
         $this->isOneToOne = TRUE;
-        // void function will be part of query building
-
-
-        /* SELECT * FROM books JOIN genres ON books.genre_id=genres.id */
-        $this->query = $this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key;
+        $this->relationTable = $ft;
+        $this->query = $this->table_name." JOIN ".$ft." ON ".$this->table_name.".".$ptpk."=".$ft.".".$ftpk;
         
-
         return $this;
     }
 
-    public function oneToMany($table_name, $primary_key, $foreign_key) 
+    public function oneToMany($ft, $ptpk, $ftpk) 
     { 
         $this->isRelationChainRuleFollowed();
         $this->isOneToMany = TRUE;
-        // void function will be part of query building
-        array_push($this->tableNames, $this->table_name);
-        array_push($this->tableNames, $table_name);
-        $this->query = " (".$this->table_name." LEFT JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
+        $this->relationTable = $ft;
+        $this->query = " (".$this->table_name." LEFT JOIN ".$ft." ON ".$this->table_name.".".$ptpk."=".$ft.".".$ftpk.") ";
+
         return $this;
         
     }
@@ -729,6 +712,7 @@ set_columns_cluase
         $this->isManyToMany   = FALSE;
         $this->isOneToOne     = FALSE;
         $this->isOneToMany    = FALSE;
+        $this->relationTable  = '';
         $this->query          = '';
     }
 

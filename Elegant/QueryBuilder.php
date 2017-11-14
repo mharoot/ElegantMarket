@@ -575,7 +575,7 @@ set_columns_cluase
      *      U: updates junction_table only
      *      D: deletes from junction_table only
      * @about:
-     *      The assumption of a naming convention for colum names inside junction tables 
+     *      The assumption of a naming convention for colum names inside jts to match the pt and ft it is related to
      *      ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") 
      *      ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")
      * 

@@ -95,7 +95,7 @@ class QueryBuilderTest extends TestCase
         
         $qbQuery = $queryBuilder->manyToMany( $foreign_table_name, $junction_table_name, $foreign_table_primary_key, $foreign_table_primary_key)->get();
 
-        $q = 'SELECT * FROM books JOIN books_authors ON (books.author_id=books_authors.author_id) JOIN authors ON (books_authors.author_id=authors.author_id)';
+        $q = 'SELECT * FROM orders JOIN orderdetails ON ( orders.OrderID = orderdetails.OrderID ) JOIN products ON (products.ProductID = orderdetails.ProductID)';
 
         $this->assertEquals($qbQuery, $q);
         

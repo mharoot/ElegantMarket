@@ -141,6 +141,19 @@ class CustomerTest extends TestCase
 
     }
 
+    public function test_full_join_order_by_OrderID()
+    {
+        $customer = new Customer();
+        $foreign_table_name = 'orders';
+        $primary_key = 'CustomerID';
+        $op = '=';
+        $foreign_key = 'CustomerID';
+        $results = $customer->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->orderBy('OrderID', false)->get();
+        $this->assertTrue(count($results)>25);
+    }
+
+
+
     
     
 }

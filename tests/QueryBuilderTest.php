@@ -167,7 +167,7 @@ class QueryBuilderTest extends TestCase
         $foreign_key        = 'CustomerID';
         $queryBuilder       = new QueryBuilder($primary_table_name);
 
-        $qbQuery = $queryBuilder->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->get();
+        $qbQuery = $queryBuilder->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->orderBy('customers.CustomerID')->get();
         $query   = 'SELECT * FROM customers LEFT JOIN orders ON customers.CustomerID=orders.CustomerID UNION SELECT * FROM customers RIGHT JOIN orders ON customers.CustomerID=orders.CustomerID';
         
         $this->assertEquals($qbQuery, $query);

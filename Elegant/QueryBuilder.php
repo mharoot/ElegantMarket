@@ -9,6 +9,7 @@ declare(strict_types=1);
 class QueryBuilder 
 {
 
+    public $hasJoin; // for both innerJoin and Join.
     public $hasLeftJoin;
     public $hasRightJoin;
     public $hasWhereClause;
@@ -552,19 +553,29 @@ set_columns_cluase
         return $final_query;
     }
 
+    public function join($foreign_table)
+    {
+        $this->hasJoin = TRUE;
+        $this->query .= " JOIN ". $foreign_table;
+        return $this;
+    }
+    
     public function innerJoin($foreign_table)
     {
+        $this->hasJoin = TRUE;
         $this->query .= " INNER JOIN ". $foreign_table;
         return $this;
     }
 
     public function leftJoin($foreign_table)
     {
+        $this->hasLeftJoin = TRUE;
         $this->query .= " LEFT JOIN ". $foreign_table;
         return $this;
     }
     public function rightJoin($foreign_table)
     {
+        $this->hasRightJoin = TRUE;
         $this->query .= " RIGHT JOIN ". $foreign_table;
         return $this;
     }
@@ -616,6 +627,7 @@ set_columns_cluase
      */
     private function resetProperties()
     {
+        $this->hasJoin        = FALSE;
         $this->hasRightJoin   = FALSE;
         $this->hasLeftJoin    = FALSE;
         $this->hasWhereClause = FALSE;

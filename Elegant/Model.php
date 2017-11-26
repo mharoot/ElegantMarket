@@ -264,12 +264,18 @@ private function filterTableName($table_col_name)
         return $this;
     }
 
+    public function join($foreign_table)
+    {
+        $this->queryBuilder->join($foreign_table);
+        return $this;
+    }
 
     public function innerJoin($foreign_table)
     {
         $this->queryBuilder->innerJoin($foreign_table);
         return $this;
     }
+
     public function leftJoin($foreign_table)
     {
         $this->queryBuilder->leftJoin($foreign_table);
@@ -282,15 +288,15 @@ private function filterTableName($table_col_name)
         return $this;
     }
 
-     public function fullJoin($foreign_table)
+     public function fullJoin( $ft, $pk, $op, $fk)
     {
-        $this->queryBuilder->fullJoin($foreign_table);
+        $this->queryBuilder->fullJoin( $ft, $pk, $op, $fk);
         return $this;
     }
 
     public function on ($ptpk, $op, $ftfk)
     {
-        if (!$this->queryBuilder->hasRightJoin && !$this->queryBuilder->hasLeftJoin)
+        if (!$this->queryBuilder->hasRightJoin && !$this->queryBuilder->hasLeftJoin && !$this->queryBuilder->hasJoin)
         {   // then redirect and tell them what there doing wrong.
 
             session_start();

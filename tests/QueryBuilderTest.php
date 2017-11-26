@@ -126,7 +126,7 @@ class QueryBuilderTest extends TestCase
         $foreign_key = 'customer_id';
         $queryBuilder = new QueryBuilder($primary_table_name);
         $qbQuery = $queryBuilder->oneToMany($foreign_table_name, $primary_key , $foreign_key)->get();
-        $query   = 'SELECT * FROM customers JOIN orders ON customers.id=orders.customer_id';
+        $query   = 'SELECT * FROM  (customers JOIN orders ON customers.id=orders.customer_id) ';
         $this->assertEquals( $qbQuery, $query);
     } 
 
@@ -156,6 +156,43 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($qbQuery, $query);
     } 
 
+
+
+    public function test_full_join() 
+    {
+        $primary_table_name = 'customers';
+        $foreign_table_name = 'orders';
+        $primary_key        = 'CustomerID';
+        $op                 = '=';
+        $foreign_key        = 'CustomerID';
+        $queryBuilder       = new QueryBuilder($primary_table_name);
+
+        $qbQuery = $queryBuilder->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->get();
+        $query   = 'SELECT * FROM customers LEFT JOIN orders ON customers.CustomerID=orders.CustomerID UNION SELECT * FROM customers RIGHT JOIN orders ON customers.CustomerID=orders.CustomerID';
+        
+        $this->assertEquals($qbQuery, $query);
+    } 
+
+
+
+
+    public function test_limit_get(){
+        $primary_table_name = 'customers';
+        $queryBuilder = new QueryBuilder($primary_table_name);
+        $qbQuery = $queryBuilder->limit(0,5)->get();
+        $query   = 'SELECT * FROM customers LIMIT 0,5';
+        $this->assertEquals( $qbQuery, $query);
+    }
+
+    public function test_order_by_get(){
+        $primary_table_name = 'customers';
+        $col = 'CustomerName';
+        $queryBuilder = new QueryBuilder($primary_table_name);
+        $qbQuery = $queryBuilder->orderBy($col,false)->get();
+        $query   = 'SELECT * FROM customers ORDER BY CustomerName ASC';
+        $this->assertEquals( $qbQuery, $query);
+    }
+
     public function test_right_join() 
     {
         $primary_table_name = 'customers';
@@ -168,39 +205,5 @@ class QueryBuilderTest extends TestCase
         $query   = 'SELECT * FROM customers RIGHT JOIN orders ON Customers.CustomerID = Orders.CustomerID';
         $this->assertEquals($qbQuery, $query);
     } 
-
-    public function test_full_join() 
-    {
-        $primary_table_name = 'customers';
-        $foreign_table_name = 'orders';
-        $primary_key = 'Customers.CustomerID';
-        $op = '=';
-        $foreign_key = 'Orders.CustomerID';
-        $queryBuilder = new QueryBuilder($primary_table_name);
-        $qbQuery = $queryBuilder->fullJoin($foreign_table_name)->on($primary_key,$op,$foreign_key)->get();
-        $query   = 'SELECT * FROM customers FULL OUTER JOIN orders ON Customers.CustomerID = Orders.CustomerID';
-        $this->assertEquals($qbQuery, $query);
-    } 
-
-
-
-
-    public function test_all_limit(){
-        $primary_table_name = 'customers';
-        $queryBuilder = new QueryBuilder($primary_table_name);
-        $qbQuery = $queryBuilder->limit(0,5)->get();
-        $query   = 'SELECT * FROM customers LIMIT 0,5';
-        $this->assertEquals( $qbQuery, $query);
-    }
-    public function test_order_by(){
-        $primary_table_name = 'customers';
-        $col = 'CustomerName';
-        $queryBuilder = new QueryBuilder($primary_table_name);
-        $qbQuery = $queryBuilder->orderBy($col,false)->get();
-        $query   = 'SELECT * FROM customers ORDER BY CustomerName ASC';
-        $this->assertEquals( $qbQuery, $query);
-    }
-
-    
 }
 ?>

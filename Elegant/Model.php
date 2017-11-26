@@ -288,9 +288,18 @@ private function filterTableName($table_col_name)
         return $this;
     }
 
-    public function on($primary_key,$op,$foreign_key)
+    public function on ($ptpk, $op, $ftfk)
     {
-        $this->queryBuilder->on($primary_key, $op, $foreign_key);
+        if (!$this->queryBuilder->hasRightJoin && !$this->queryBuilder->hasLeftJoin)
+        {   // then redirect and tell them what there doing wrong.
+
+            session_start();
+            $_SESSION['message'] = "You must either call a left, right, or regular join to use the on clause";
+            session_write_close();
+
+            $this->redirect("error404.php");
+        }
+        $this->queryBuilder->on( $ptpk, $op, $ftfk);
         return $this;
     }
 

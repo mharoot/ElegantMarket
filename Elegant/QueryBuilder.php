@@ -9,6 +9,8 @@ declare(strict_types=1);
 class QueryBuilder 
 {
 
+    public $hasLeftJoin;
+    public $hasRightJoin;
     public $hasWhereClause;
     private $isManyToMany;
     private $isOneToOne;
@@ -362,8 +364,7 @@ set_columns_cluase
     * 
     *  About Where:
     *  It prepares model for binding sanitized input.  You cannot pass in a WHERE
-    *  clause in a safe fashion period end of story As of now there is a Security 
-    *  issue prepare for all possible user input.
+    *  clause in a safe fashion period end of story. Prepare for all possible user input.
     *
     *  Assumption:
     *      The where function was built assuming only there can be only one WHERE clause in an sql query.
@@ -568,16 +569,24 @@ set_columns_cluase
         return $this;
     }
 
-    public function fullJoin($ft,$pk,$op,$fk)
+    public function fullJoin ( $ft, $pk, $op, $fk)
     {
+        /*
+            SELECT * FROM t1 -> this happens in get and will be preprended to query string.
+            LEFT JOIN t2 ON t1.id=t2.id 
+            UNION SELECT * FROM t1 RIGHT JOIN t2 ON t1.id=t2.id
+        */
+        $ptpk = $this->table_name.".".$pk;
+        $ftfk = $ft.".".$fk;
 
-        $this->query .= " LEFT JOIN ".$ft ." ON ".$pk." ".$op." ".$fk ." UNION SELECT * FROM ". $this->table_name." RIGHT JOIN ".$ft ." ON ".$pk." ".$op." ".$fk;
-        return $this;
+        $this->query .= " LEFT JOIN ".$ft." ON ".$ptpk.$op.$ftfk.
+                        " UNION SELECT * FROM ".$this->table_name." RIGHT JOIN ".$ft." ON ".$ptpk.$op.$ftfk;
+        return $this;;
     }
 
-    public function on($primary_key,$op,$foreign_key)
+    public function on ($ptpk, $op, $ftfk)
     {
-        $this->query .= " ON ". $primary_key ." ".$op ." ". $foreign_key;
+        $this->query .= " ON ". $ptpk ." ".$op ." ". $ftfk;
         return $this;
     }
 
@@ -607,6 +616,8 @@ set_columns_cluase
      */
     private function resetProperties()
     {
+        $this->hasRightJoin   = FALSE;
+        $this->hasLeftJoin    = FALSE;
         $this->hasWhereClause = FALSE;
         $this->isManyToMany   = FALSE;
         $this->isOneToOne     = FALSE;

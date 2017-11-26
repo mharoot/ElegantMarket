@@ -15,7 +15,7 @@ class QueryBuilder
     private $isOneToMany;
     private $query;
     private $table_name;
-    private $relationTable;
+    private $tableNames = [];
 
 
 
@@ -39,143 +39,28 @@ class QueryBuilder
     }
  
 /*
---------------------------------------------DELETE-------------------------------------------------
-
-CFG for DELETE:
-
-// identifiers ---  http://dev.mysql.com/doc/refman/5.6/en/identifiers.html --------------
-ALL_FIELDS	: '.*' ;
-schema_name : tmpName=ID {strlen((const char *)$tmpName.text->chars) <= 64}? {printf("schema name = \%s \n",(char*)($tmpName.text->chars));};
-table_name  : tmpName=ID {strlen((const char *)$tmpName.text->chars) <= 64}? {printf("table name = \%s \n",(char*)($tmpName.text->chars));};
-
-// optional  = database_name.table_name
-// mandatory = table_name
-table_spec:
-	
-	( schema_name DOT )? table_name
-
-;
-
-
-
 // delete ------  http://dev.mysql.com/doc/refman/5.6/en/delete.html  ------------------------
 delete_statements:
-	
 	DELETE_SYM (LOW_PRIORITY)? (QUICK)? (IGNORE_SYM)?
-	
 	( delete_single_table_statement | delete_multiple_table_statement1 | delete_multiple_table_statement2 )
-
 ;
-
-
 delete_single_table_statement:
-	
 	FROM table_spec
 	(partition_clause)?
-
 	(where_clause)?
 	(orderby_clause)?
-
 	(limit_clause)?
-
 ;
-column_list:
-	LPAREN column_spec (COMMA column_spec)* RPAREN
-;
-
-join_condition:
-      (ON expression) | (USING_SYM column_list)
-      
-table_references:
-        table_reference (( COMMA table_reference )?)*
-;
-table_reference:
-	table_factor1 | table_atom
-;
-table_factor1:
-	table_factor2 (  (INNER_SYM | CROSS)? JOIN_SYM table_atom (join_condition)?  )?
-;
-table_factor2:
-	table_factor3 (  STRAIGHT_JOIN table_atom (ON expression)?  )?
-;
-table_factor3:
-	table_factor4 (  (LEFT|RIGHT) (OUTER)? JOIN_SYM table_factor4 join_condition  )?
-;
-table_factor4:
-	table_atom (  NATURAL ( (LEFT|RIGHT) (OUTER)? )? JOIN_SYM table_atom )?
-;
-
-'DELETE customers, orders FROM (customers JOIN orders USING (CustomerID) ) WHERE customers.CustomerID = 90':
-table_atom:
-	  ( table_spec (partition_clause)? (alias)? (index_hint_list)? )
-	| ( subquery alias )
-	| ( LPAREN table_references RPAREN )
-	| ( OJ_SYM table_reference LEFT OUTER JOIN_SYM table_reference ON expression )
-;
-
-
 delete_multiple_table_statement1:
-
 	table_spec (ALL_FIELDS)? (COMMA table_spec (ALL_FIELDS)?)*
-
 	FROM table_references
-
 	(where_clause)?
-
 ;
-
-
 delete_multiple_table_statement2:
-
 	FROM table_spec (ALL_FIELDS)? (COMMA table_spec (ALL_FIELDS)?)*
-	
 	USING_SYM table_references
-
 	(where_clause)?
-
-; 
-
-----------------------------------------------------------------------------
-LEFT MOST DERIVATION FOR 
-w= 'DELETE customers, orders FROM customers JOIN orders USING (CustomerID)  WHERE customers.CustomerID = 90':
-
-----------------------------------------------------------------------------
-NOTE
-----
-dropping optional sub strings: (sub_string)? 
-
-or 
-
-including them as needed: sub_string
-----------------------------------------------------------------------------
-
-
-                  => DELETE customers, orders FROM customers JOIN orders USING (CustomerID)  WHERE customers.CustomerID = 90
-delete_statements => DELETE_SYM delete_multiple_table_statement1 
-                  => DELETE delete_multiple_table_statement1
-                 *=> DELETE customers, orders FROM table_references where_clause
-                  => DELETE customers, orders FROM table_reference where_clause
-                  => DELETE customers, orders FROM table_factor1 where_clause
-                  => DELETE customers, orders FROM table_factor2 (  (INNER_SYM | CROSS)? JOIN_SYM table_atom (join_condition)?  )? where_clause
-                  => DELETE customers, orders FROM table_factor4 (  (INNER_SYM | CROSS)? JOIN_SYM table_atom (join_condition)?  )? where_clause
-                  => DELETE customers, orders FROM table_atom (  NATURAL ( (LEFT|RIGHT) (OUTER)? )? JOIN_SYM table_atom )? (  (INNER_SYM | CROSS)? JOIN_SYM table_atom (join_condition)?  )? where_clause
-                  => DELETE customers, orders FROM table_atom JOIN_SYM table_atom join_condition where_clause
-                  => DELETE customers, orders FROM table_atom JOIN_SYM table_atom join_condition where_clause
-                 *=> DELETE customers, orders FROM customers JOIN orders join_condition where_clause
-                 *=> DELETE customers, orders FROM customers JOIN orders USING column_list where_clause
-                 *=> DELETE customers, orders FROM customers JOIN orders USING (CustomerID) WHERE customers.CustomerID = 90
-
-
-                 
-                
-                
-
-
-
-
-
-
-
+;
 */
     public function delete()
     {
@@ -183,16 +68,28 @@ delete_statements => DELETE_SYM delete_multiple_table_statement1
         {
             return '';
         }
-        // delete_single_table_statement:
+
         $query ="DELETE FROM ".$this->table_name;
  
-        // delete_multiple_table_statement1: note it could be like delete_multiple_table_statement2:
-        if ($this->isOneToMany || $this->isOneToOne || $this->isManyToMany)
-        {        
-            // A delete in a many to many relationship only deletes from the junction table and primary table
-            //  ....       a one  to  one relationship only deletes from the foreign table and primary table
-            // .......     a one  to many relationship only deletes from the foreign table and primary table
-            $query = "DELETE ".$this->table_name.', '.$this->relationTable.' FROM ';
+        if ($this->isOneToMany || $this->isOneToOne)
+        {
+            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
+            // assuming order of table names does not matter we can simply pop however if we are chaining relations which has been done in
+            // elegant-bookstore then order matters, we have to be careful so maybe we should not chain relations at all? well see.
+            
+            $query = "DELETE ";
+            $query.= array_pop($this->tableNames).', ';
+            $query.= array_pop($this->tableNames).' FROM ';
+        }
+
+        if ($this->isManyToMany)
+        {
+            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
+            // assuming order of table names does not matter
+            
+            $query = "DELETE ";
+            $query.= array_pop($this->tableNames).', ';
+            $query.= array_pop($this->tableNames).' FROM ';
         }
         
  
@@ -201,24 +98,6 @@ delete_statements => DELETE_SYM delete_multiple_table_statement1
         // var_dump($query);
         return $query;
     }
-/*
---------------------------------------------DELETE END---------------------------------------------
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -495,6 +374,7 @@ set_columns_cluase
     */
     public function where ( $col_name, $arg2 )
     {
+        // Developers may pass for example tableName.id
         $col_table_name = $col_name;
         $col_name = $this->filterTableName($col_name);
         
@@ -558,79 +438,51 @@ set_columns_cluase
 
 
 
-    /**
-     * @task:
-     *      C: Inserts into junction_table, and primary table
-     *      R: reads  from ft,jt,pt
-     *      U: updates junction_table and primary table
-     *      D: deletes from junction_table and primary table
-     * 
-     *      The assumption of a naming convention for colum names inside jts to match the pt and ft it is related to
-     *      ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") 
-     *      ON (".$jt.".".$ftpk."=".$ft.".".$ftpk.")
-     * 
-     * @param $ft   = foreign table
-     * @param $jt   = junction table
-     * @param $ptpk = primary table primary key
-     * @param $ftpk = foreign table primary key
-     */
-	public function manyToMany ( $ft, $jt, $ptpk, $ftpk) 
+
+
+
+	public function manyToMany ( $table_name, $junction_table, $this_primary_key, $primary_key) 
     {
-        $this->isRelationChainRuleFollowed();
+        /*SELECT * from books INNER JOIN books_authors ON (books.book_id=books_authors.book_id) INNER JOIN authors ON (books_authors.author_id = authors.author_id) where 1*/
+
         $this->isManyToMany = TRUE;
 
         if($this->query == '')
         {
-            $this->query = $this->table_name;
+            $this->query = $this->table_name." JOIN ".$junction_table." ON (".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key.") JOIN ". $table_name." ON (".$junction_table.".".$primary_key."=".$table_name.".".$primary_key.")";
         }
-
-        $this->query .=" JOIN ".$jt." ON (".$this->table_name.".".$ptpk."=".$jt.".".$ptpk.") JOIN ". $ft." ON (".$ft.".".$ftpk."=".$jt.".".$ftpk.")";
-        $this->relationTable = $jt; // updates, deletes, and inserts are all done to the junction table and primary tables in manyToMany Relations
-
+        else
+        {
+             $this->query .= " JOIN ".$junction_table." ON (".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key.") JOIN ". $table_name." ON (".$junction_table.".".$primary_key."=".$table_name.".".$primary_key.")";
+        }
 
         return $this;
     }
 	
 
 
-    private function isRelationChainRuleFollowed()
-    {
-        if ( $this->isManyToMany || $this->isOneToMany || $this->isOneToOne )
-        {
-            session_start();
-            $_SESSION['error-message'] = "You may not chain relations.  Consider using join functions for specific joins";
-            session_write_close();
-            $this->redirect ('error404.php');
-        }
-        
-    }
-
-    private function redirect ($url) 
-    {
-        ob_start();
-        header('Location: '.$url);
-        ob_end_flush();
-        die();
-    }
 
 
-    public function oneToOne ( $ft, $ptpk, $ftpk) 
+
+    public function oneToOne ( $table_name, $primary_key, $foreign_key) 
     { 
-        $this->isRelationChainRuleFollowed();
         $this->isOneToOne = TRUE;
-        $this->relationTable = $ft;
-        $this->query = $this->table_name." JOIN ".$ft." ON ".$this->table_name.".".$ptpk."=".$ft.".".$ftpk;
+        // void function will be part of query building
+
+
+        /* SELECT * FROM books JOIN genres ON books.genre_id=genres.id */
+        $this->query = $this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key;
         
+
         return $this;
     }
 
-    public function oneToMany($ft, $ptpk, $ftpk) 
-    { 
-        $this->isRelationChainRuleFollowed();
+    public function oneToMany($table_name, $primary_key, $foreign_key) { 
         $this->isOneToMany = TRUE;
-        $this->relationTable = $ft;
-        $this->query = " (".$this->table_name." LEFT JOIN ".$ft." ON ".$this->table_name.".".$ptpk."=".$ft.".".$ftpk.") ";
-
+        // void function will be part of query building
+        array_push($this->tableNames, $this->table_name);
+        array_push($this->tableNames, $table_name);
+        $this->query = " (".$this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
         return $this;
         
     }
@@ -699,7 +551,54 @@ set_columns_cluase
         return $final_query;
     }
 
+    public function innerJoin($foreign_table)
+    {
+        $this->query .= " INNER JOIN ". $foreign_table;
+        return $this;
+    }
 
+    public function leftJoin($foreign_table)
+    {
+        $this->query .= " LEFT JOIN ". $foreign_table;
+        return $this;
+    }
+    public function rightJoin($foreign_table)
+    {
+        $this->query .= " RIGHT JOIN ". $foreign_table;
+        return $this;
+    }
+
+    public function fullJoin($ft,$pk,$op,$fk)
+    {
+
+        $this->query .= " LEFT JOIN ".$ft ." ON ".$pk." ".$op." ".$fk ." UNION SELECT * FROM ". $this->table_name." RIGHT JOIN ".$ft ." ON ".$pk." ".$op." ".$fk;
+        return $this;
+    }
+
+    public function on($primary_key,$op,$foreign_key)
+    {
+        $this->query .= " ON ". $primary_key ." ".$op ." ". $foreign_key;
+        return $this;
+    }
+
+    public function limit($offset, $row_count)
+    {
+        $this->query.= " LIMIT ".$offset.",".$row_count;
+        return $this;
+    }
+
+
+    public function orderBy($col, $desc = FALSE)
+    {
+        if($desc == TRUE)
+        {
+            $this->query.= " ORDER BY ".$col. " DESC"; 
+        }else{
+            $this->query.= " ORDER BY ".$col. " ASC";
+        }
+        
+        return $this;
+    }
 
 
     /**
@@ -712,7 +611,6 @@ set_columns_cluase
         $this->isManyToMany   = FALSE;
         $this->isOneToOne     = FALSE;
         $this->isOneToMany    = FALSE;
-        $this->relationTable  = '';
         $this->query          = '';
     }
 

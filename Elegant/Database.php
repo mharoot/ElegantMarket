@@ -91,14 +91,6 @@ class Database {
         return $this->stmt->fetchAll(PDO::FETCH_COLUMN);
 	}
 
-	public function getPrimaryKey($tableName)
-	{
-		$this->query("SHOW KEYS FROM ".$tableName." WHERE Key_name = 'PRIMARY'");
-		$this->execute();
-		$result =  $this->stmt->fetch(PDO::FETCH_ASSOC);
-        return $result["Column_name"];
-	}
-
     /*
     use if returning only 1 row returned as an associative array
     */

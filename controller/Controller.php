@@ -5,11 +5,15 @@ SUPER CONTROLLER WE ARE NO LONGER USING SEPERATE CONTROLLER FILES.
 
 ALL GET, PUT, DELETE, POST calls go through here for the website
 */
-
+ ini_set('display_errors',1);
+ error_reporting(E_ALL);
 include_once("model/Customer.php");
+include_once("model/Product.php");
 class Controller {
     public $customer_model;
-    public $_routes = ['customer-orders','customers', 'delete-customer', 'insert-customer', 'query-builder', 'reset-customers', 't'];
+    public $product_model;
+    public $_routes = ['customer-orders','customers', 'delete-customer', 'insert-customer', 'query-builder', 'reset-customers', 'products', 'product-row-count','products-prev','products-next', 'product-order-desc',
+'product-order-by'];
     
     public function __construct()  
     {  
@@ -18,6 +22,9 @@ class Controller {
             return;
         }
         $this->customer_model = new Customer();
+        $this->product_model = new Product();
+        
+
     }
     
     public function invoke()
@@ -45,56 +52,12 @@ class Controller {
 
     private function get_request_handler()
     {
+
         if($_SERVER['REQUEST_METHOD'] == 'GET')
         {
 
-            if (isset($_GET['t']))
-            {
-                //illegal chaining takes to 404 with error message to guide users
-                $this->customer_model->oneToOne('','','')->oneToOne('','','')->get();
-            }
-
             if (isset($_GET['customer-orders']))
             {
-/*
-    using a join vs using a left join:
-
-    Optimization plan 1: The second clause can be optimized using limit 1 since were only expected 1 result for 1 customer id. 
-    Optimization plan 2: Take out second clause use left join instead where the customer is the left side, note maybe oneToMany should be a left join. 
-                            Note it could be a right join. However, I like to think left to right as if I am writing a sentence so going with  left join 
-                            is ideal.  
-
-
-    
-
-
-    using a join:
-    - if a customer has not placed any orders, which many be more common than you think,
-    - then two query executions are made to the server because the first query does 
-    - not return anything.  It's obvious this may waste time but lets compare by running
-    - MySQL UNIT TESTS
-    -
-    - 1st query: SELECT * FROM customers JOIN orders ON (Customers.CustomerID = Orders.CustomerID) WHERE customers.CustomerID = 1
-            result:  MySQL returned an empty result set (i.e. zero rows). (Query took 0.0023 seconds.)
-
-    - 2nd query: SELECT * FROM customers WHERE CustomerID = 1;
-            result:  MySQL returned an empty result set (i.e. zero rows). (Query took 0.0012 seconds.)
-
-    - limit in queries: same query performs 20-33% better when were expecting one result
-        SELECT * FROM customers WHERE CustomerID = 1 LIMIT 1;
-        result:  MySQL returned an empty result set (i.e. zero rows). (Query took 0.0008 seconds.)
-
-        MySQL returned an empty result set (i.e. zero rows). (Query took 0.0016 seconds.)
-        SELECT * FROM customers JOIN orders ON (Customers.CustomerID = Orders.CustomerID) WHERE customers.CustomerID = 1 
-
-    using a left join:
-    - we only need to run one query to find out this customer has not placed any orders.
-        Showing rows 0 - 0 (1 total, Query took 0.0020 seconds.)
-        SELECT * FROM customers LEFT JOIN orders ON (Customers.CustomerID = Orders.CustomerID) WHERE customers.CustomerID = 1
-    - the join takes the same amount of time.
-
-
-*/
                 $customer_id = $_GET['customer-orders'];
                 $customer_orders = $this->customer_model->getCustomerOrder($customer_id);
                 $customer = null;
@@ -122,6 +85,52 @@ class Controller {
                 include 'view/pages/customers.php';
                 include 'view/templates/footer.php';
             }
+
+            if(isset($_GET['products']))
+            {
+                
+                session_start();
+                $_SESSION['product-row-count'] = 5;
+                $_SESSION['product-order-by'] = 'ProductID';
+                $_SESSION['product-order-desc'] = FALSE;
+                $_SESSION['page'] = 1;
+                $p = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate(5);
+                $_SESSION['total_pages'] = count($p);
+                session_write_close();
+                $products = $p[1];
+                include 'view/templates/header.php';
+                include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            }
+
+            if(isset($_GET['products-prev']))
+            {
+                session_start();
+                if($_SESSION['page'] > 1 )
+                {
+                    $_SESSION['page'] -= 1;
+                }
+                session_write_close();
+                $products = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count'])[$_SESSION['page']];
+                include 'view/templates/header.php';
+                include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            }
+
+             if(isset($_GET['products-next']))
+            {
+                session_start();
+                if($_SESSION['total_pages'] > $_SESSION['page'])
+                {
+                    $_SESSION['page'] += 1;
+                }
+                session_write_close();
+                $products = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count'])[$_SESSION['page']];
+                include 'view/templates/header.php';
+                include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            }
+
 
             if (isset($_GET['documentation']))
             {
@@ -164,7 +173,7 @@ class Controller {
             }
 
             if(isset($_POST['insert-customer']))
-           {
+            {
             
                $customer_name = $_POST['CustomerName'];
                $contact_name  = $_POST['ContactName'];
@@ -200,7 +209,55 @@ class Controller {
 
                $this->redirect();
 
-           }
+            }
+           
+            if(isset($_POST['product-row-count']))
+            {
+                
+                
+                session_start();
+                $_SESSION['product-row-count'] = $_POST['product-row-count'];
+                $p = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count']);
+                $_SESSION['total_pages'] = count($p);
+                $_SESSION['page'] = 1;
+                session_write_close();
+                $products = $p[$_SESSION['page']];
+                
+                include 'view/templates/header.php';
+                include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            
+            }
+
+            if(isset($_POST['product-order-by']))
+            {
+                
+                
+                session_start();
+                $_SESSION['product-order-by'] = $_POST['product-order-by'];
+                $_SESSION['page'] = 1;
+                session_write_close();
+                $products = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count'])[$_SESSION['page']];
+                
+                include 'view/templates/header.php';
+                include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            
+            }
+
+            if(isset($_POST['product-order-desc']))
+            {
+                
+                session_start();
+                $_SESSION['product-order-desc'] = $_POST['product-order-desc'];
+                $_SESSION['page'] = 1;
+                session_write_close();
+                $products = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count'])[$_SESSION['page']];
+                include 'view/templates/header.php';
+                include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            
+            }
 
             $this->putAndDeleteRequestHandler();         
         }

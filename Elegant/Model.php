@@ -265,6 +265,72 @@ private function filterTableName($table_col_name)
     }
 
 
+    public function innerJoin($foreign_table)
+    {
+        $this->queryBuilder->innerJoin($foreign_table);
+        return $this;
+    }
+    public function leftJoin($foreign_table)
+    {
+        $this->queryBuilder->leftJoin($foreign_table);
+        return $this;
+    }
+
+     public function rightJoin($foreign_table)
+    {
+        $this->queryBuilder->rightJoin($foreign_table);
+        return $this;
+    }
+
+     public function fullJoin($foreign_table)
+    {
+        $this->queryBuilder->fullJoin($foreign_table);
+        return $this;
+    }
+
+    public function on($primary_key,$op,$foreign_key)
+    {
+        $this->queryBuilder->on($primary_key, $op, $foreign_key);
+        return $this;
+    }
+
+    public function limit($offset,$row_count)
+    {
+        $this->queryBuilder->limit($offset, $row_count);
+        return $this;
+    }
+
+    public function orderBy($col, $desc = false)
+    {
+        $this->queryBuilder->orderBy($col, $desc);
+        return $this;
+    }
+
+    public function paginate($row_count)
+    {
+        $items = $this->get();
+        $total = count($items);
+        $arr = [];
+        $j = 1;
+        $k = 0;
+        for ($i=0; $i < $total; $i++) {
+            if($k < $row_count){ 
+                $arr[$j][$k] = $items[$i];
+            }else{
+                $k = 0;
+                $j = $j + 1;
+                $arr[$j][$k] = $items[$i];
+            }
+            $k++;
+        }
+
+        return $arr;
+        
+    }
+
+
+   
+
 
 
 
@@ -281,14 +347,14 @@ private function filterTableName($table_col_name)
         // check if developer remembered to give table name
         if ($this->table_name === NULL)
         {
-            redirect('error404.php');
+            $this->redirect('error404.php');
         }
 
         // check if (this table) or (the table we are trying to join) name is correct or 
         $tableExists = $this->checkTableExistHelper($table_name);
         if (!$tableExists)
         {
-            redirect('error404.php');
+            $this->redirect('error404.php');
         }
     }
 

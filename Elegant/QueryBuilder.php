@@ -581,7 +581,7 @@ set_columns_cluase
 
         $this->query .= " LEFT JOIN ".$ft." ON ".$ptpk.$op.$ftfk.
                         " UNION SELECT * FROM ".$this->table_name." RIGHT JOIN ".$ft." ON ".$ptpk.$op.$ftfk;
-        return $this;;
+        return $this;
     }
 
     public function on ($ptpk, $op, $ftfk)

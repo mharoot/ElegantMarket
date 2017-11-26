@@ -298,15 +298,18 @@ private function filterTableName($table_col_name)
     {
         if (!$this->queryBuilder->hasRightJoin && !$this->queryBuilder->hasLeftJoin && !$this->queryBuilder->hasJoin)
         {   // then redirect and tell them what there doing wrong.
-
-            session_start();
-            $_SESSION['message'] = "You must either call a left, right, or regular join to use the on clause";
-            session_write_close();
-
+            $this->setErrorMessage("You must either call a left, right, or regular join to use the on clause");
             $this->redirect("error404.php");
         }
         $this->queryBuilder->on( $ptpk, $op, $ftfk);
         return $this;
+    }
+
+    private function setErrorMessage($m)
+    {
+        session_start();
+        $_SESSION['error_message'] = $m;
+        session_write_close();
     }
 
     public function limit($offset,$row_count)

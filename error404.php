@@ -2,8 +2,8 @@
 <p>
 <?php
 session_start();
-if ( isset($_SESSION['message']) )
-    echo $_SESSION['message'];
+if ( isset($_SESSION['error_message']) )
+    echo $_SESSION['error_message'];
 session_write_close();
 ?>
 </p>

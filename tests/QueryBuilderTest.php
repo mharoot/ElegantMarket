@@ -157,7 +157,6 @@ class QueryBuilderTest extends TestCase
     } 
 
 
-
     public function test_full_join() 
     {
         $primary_table_name = 'customers';

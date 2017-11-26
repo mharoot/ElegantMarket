@@ -149,7 +149,7 @@ class CustomerTest extends TestCase
         $op = '=';
         $foreign_key = 'CustomerID';
         $results = $customer->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->orderBy('OrderID', false)->get();
-        $this->assertTrue(count($results)>25);
+        $this->assertTrue(count($results)>0);
     }
 
 

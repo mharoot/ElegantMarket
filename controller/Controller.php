@@ -95,7 +95,6 @@ class Controller {
                 $_SESSION['product-order-desc'] = FALSE;
                 $_SESSION['page'] = 1;
                 $p = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate(5);
-                $_SESSION['total_pages'] = count($p);
                 session_write_close();
                 $products = $p[1];
                 include 'view/templates/header.php';
@@ -120,12 +119,14 @@ class Controller {
              if(isset($_GET['products-next']))
             {
                 session_start();
-                if($_SESSION['total_pages'] > $_SESSION['page'])
+                $p = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count']);
+                
+                if($p['last_page'] > $_SESSION['page'])
                 {
                     $_SESSION['page'] += 1;
                 }
                 session_write_close();
-                $products = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count'])[$_SESSION['page']];
+                $products = $p[$_SESSION['page']];
                 include 'view/templates/header.php';
                 include 'view/pages/products.php';
                 include 'view/templates/footer.php';
@@ -218,7 +219,6 @@ class Controller {
                 session_start();
                 $_SESSION['product-row-count'] = $_POST['product-row-count'];
                 $p = $this->product_model->orderBy($_SESSION['product-order-by'],$_SESSION['product-order-desc'])->paginate($_SESSION['product-row-count']);
-                $_SESSION['total_pages'] = count($p);
                 $_SESSION['page'] = 1;
                 session_write_close();
                 $products = $p[$_SESSION['page']];

@@ -9,9 +9,7 @@ declare(strict_types=1);
 class QueryBuilder 
 {
 
-    public $hasJoin; // for both innerJoin and Join.
-    public $hasLeftJoin;
-    public $hasRightJoin;
+
     public $hasWhereClause;
     private $isManyToMany;
     private $isOneToOne;
@@ -553,30 +551,31 @@ set_columns_cluase
         return $final_query;
     }
 
-    public function join($foreign_table)
+    public function join($ft,$pk,$op,$fk)
     {
-        $this->hasJoin = TRUE;
-        $this->query .= " JOIN ". $foreign_table;
+        
+        $this->query .= " JOIN ". $ft;
+        $this->on($pk,$op,$fk);
         return $this;
     }
     
-    public function innerJoin($foreign_table)
+    public function innerJoin($ft,$pk,$op,$fk)
     {
-        $this->hasJoin = TRUE;
-        $this->query .= " INNER JOIN ". $foreign_table;
+        $this->query .= " INNER JOIN ". $ft;
+        $this->on($pk,$op,$fk);
         return $this;
     }
 
-    public function leftJoin($foreign_table)
+    public function leftJoin($ft,$pk,$op,$fk)
     {
-        $this->hasLeftJoin = TRUE;
-        $this->query .= " LEFT JOIN ". $foreign_table;
+        $this->query .= " LEFT JOIN ". $ft;
+        $this->on($pk,$op,$fk);
         return $this;
     }
-    public function rightJoin($foreign_table)
+    public function rightJoin($ft,$pk,$op,$fk)
     {
-        $this->hasRightJoin = TRUE;
-        $this->query .= " RIGHT JOIN ". $foreign_table;
+        $this->query .= " RIGHT JOIN ". $ft;
+        $this->on($pk,$op,$fk);
         return $this;
     }
 
@@ -587,17 +586,14 @@ set_columns_cluase
             LEFT JOIN t2 ON t1.id=t2.id 
             UNION SELECT * FROM t1 RIGHT JOIN t2 ON t1.id=t2.id
         */
-        $ptpk = $this->table_name.".".$pk;
-        $ftfk = $ft.".".$fk;
-
-        $this->query .= " LEFT JOIN ".$ft." ON ".$ptpk.$op.$ftfk.
-                        " UNION SELECT * FROM ".$this->table_name." RIGHT JOIN ".$ft." ON ".$ptpk.$op.$ftfk;
+        $this->query .= " LEFT JOIN ".$ft." ON ".$pk.$op.$fk.
+                        " UNION SELECT * FROM ".$this->table_name." RIGHT JOIN ".$ft." ON ".$pk.$op.$fk;
         return $this;
     }
 
-    public function on ($ptpk, $op, $ftfk)
+    public function on ($pk, $op, $fk)
     {
-        $this->query .= " ON ". $ptpk ." ".$op ." ". $ftfk;
+        $this->query .= " ON ". $pk ." ".$op ." ". $fk;
         return $this;
     }
 
@@ -627,9 +623,7 @@ set_columns_cluase
      */
     private function resetProperties()
     {
-        $this->hasJoin        = FALSE;
-        $this->hasRightJoin   = FALSE;
-        $this->hasLeftJoin    = FALSE;
+
         $this->hasWhereClause = FALSE;
         $this->isManyToMany   = FALSE;
         $this->isOneToOne     = FALSE;

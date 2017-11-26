@@ -264,27 +264,27 @@ private function filterTableName($table_col_name)
         return $this;
     }
 
-    public function join($foreign_table)
+    public function join($ft, $pk, $op, $fk)
     {
-        $this->queryBuilder->join($foreign_table);
+        $this->queryBuilder->join($ft, $pk, $op, $fk);
         return $this;
     }
 
-    public function innerJoin($foreign_table)
+    public function innerJoin($ft, $pk, $op, $fk)
     {
-        $this->queryBuilder->innerJoin($foreign_table);
+        $this->queryBuilder->innerJoin($ft, $pk, $op, $fk);
         return $this;
     }
 
-    public function leftJoin($foreign_table)
+    public function leftJoin($ft, $pk, $op, $fk)
     {
-        $this->queryBuilder->leftJoin($foreign_table);
+        $this->queryBuilder->leftJoin($ft, $pk, $op, $fk);
         return $this;
     }
 
-     public function rightJoin($foreign_table)
+     public function rightJoin($ft, $pk, $op, $fk)
     {
-        $this->queryBuilder->rightJoin($foreign_table);
+        $this->queryBuilder->rightJoin($ft, $pk, $op, $fk);
         return $this;
     }
 
@@ -294,16 +294,7 @@ private function filterTableName($table_col_name)
         return $this;
     }
 
-    public function on ($ptpk, $op, $ftfk)
-    {
-        if (!$this->queryBuilder->hasRightJoin && !$this->queryBuilder->hasLeftJoin && !$this->queryBuilder->hasJoin)
-        {   // then redirect and tell them what there doing wrong.
-            $this->setErrorMessage("You must either call a left, right, or regular join to use the on clause");
-            $this->redirect("error404.php");
-        }
-        $this->queryBuilder->on( $ptpk, $op, $ftfk);
-        return $this;
-    }
+
 
     private function setErrorMessage($m)
     {
@@ -341,7 +332,7 @@ private function filterTableName($table_col_name)
             }
             $k++;
         }
-
+        $arr['last_page'] = $j;
         return $arr;
         
     }

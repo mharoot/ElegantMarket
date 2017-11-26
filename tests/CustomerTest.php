@@ -97,46 +97,58 @@ class CustomerTest extends TestCase
     //     $this->assertTrue( $db_handler->execute() );
     // }
 
-    // public function test_inner_join(){
-    //     $customer = new Customer();
-    //     $foreign_table_name = 'orders';
-    //     $primary_key = 'Customers.CustomerID';
-    //     $op = '=';
-    //     $foreign_key = 'Orders.CustomerID';
-    //     $results = $customer->innerJoin($foreign_table_name)->on($primary_key,$op,$foreign_key)->get();
-    //     $this->assertTrue(count($results)>0);
 
-    // }
+    public function test_join(){
+        $customer = new Customer();
+        $ft = 'orders';
+        $pk = 'Customers.CustomerID';
+        $op = '=';
+        $fk = 'Orders.CustomerID';
+        $results = $customer->join($ft,$pk,$op,$fk)->get();
+        $this->assertTrue(count($results)>0);
 
-    // public function test_left_join(){
-    //     $customer = new Customer();
-    //     $foreign_table_name = 'orders';
-    //     $primary_key = 'Customers.CustomerID';
-    //     $op = '=';
-    //     $foreign_key = 'Orders.CustomerID';
-    //     $results = $customer->leftJoin($foreign_table_name)->on($primary_key,$op,$foreign_key)->get();
-    //     $this->assertTrue(count($results)>0);
+    }
 
-    // }
+    public function test_inner_join(){
+        $customer = new Customer();
+        $ft = 'orders';
+        $pk = 'Customers.CustomerID';
+        $op = '=';
+        $fk = 'Orders.CustomerID';
+        $results = $customer->innerJoin($ft,$pk,$op,$fk)->get();
+        $this->assertTrue(count($results)>0);
 
-    // public function test_right_join(){
-    //     $customer = new Customer();
-    //     $foreign_table_name = 'orders';
-    //     $primary_key = 'Customers.CustomerID';
-    //     $op = '=';
-    //     $foreign_key = 'Orders.CustomerID';
-    //     $results = $customer->rightJoin($foreign_table_name)->on($primary_key,$op,$foreign_key)->get();
-    //     $this->assertTrue(count($results)>0);
+    }
 
-    // }
+    public function test_left_join(){
+        $customer = new Customer();
+        $ft = 'orders';
+        $pk = 'Customers.CustomerID';
+        $op = '=';
+        $fk = 'Orders.CustomerID';
+        $results = $customer->leftJoin($ft,$pk,$op,$fk)->get();
+        $this->assertTrue(count($results)>0);
+
+    }
+
+    public function test_right_join(){
+        $customer = new Customer();
+        $ft = 'orders';
+        $pk = 'Customers.CustomerID';
+        $op = '=';
+        $fk = 'Orders.CustomerID';
+        $results = $customer->rightJoin($ft,$pk,$op,$fk)->get();
+        $this->assertTrue(count($results)>0);
+
+    }
 
     public function test_full_join(){
         $customer = new Customer();
-        $foreign_table_name = 'orders';
-        $primary_key = 'CustomerID';
+        $ft = 'orders';
+        $pk = 'Customers.CustomerID';
         $op = '=';
-        $foreign_key = 'CustomerID';
-        $results = $customer->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->get();
+        $fk = 'Orders.CustomerID';
+        $results = $customer->fullJoin($ft,$pk,$op,$fk)->get();
         $this->assertTrue(count($results)>25);
 
     }
@@ -144,11 +156,11 @@ class CustomerTest extends TestCase
     public function test_full_join_order_by_OrderID()
     {
         $customer = new Customer();
-        $foreign_table_name = 'orders';
-        $primary_key = 'CustomerID';
+        $ft = 'orders';
+        $pk = 'Customers.CustomerID';
         $op = '=';
-        $foreign_key = 'CustomerID';
-        $results = $customer->fullJoin($foreign_table_name, $primary_key, $op, $foreign_key)->orderBy('OrderID', false)->get();
+        $fk = 'Orders.CustomerID';
+        $results = $customer->fullJoin($ft,$pk,$op,$fk)->orderBy('OrderID', false)->get();
         $this->assertTrue(count($results)>0);
     }
 

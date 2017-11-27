@@ -551,33 +551,29 @@ set_columns_cluase
         return $final_query;
     }
 
-    public function join($ft,$pk,$op,$fk)
+    public function join($ft)
     {
-        
-        $this->query .= " JOIN ". $ft;
-        $this->on($pk,$op,$fk);
+        $this->query .= " JOIN (". $ft ;
         return $this;
     }
     
-    public function innerJoin($ft,$pk,$op,$fk)
+    public function innerJoin($ft)
     {
-        $this->query .= " INNER JOIN ". $ft;
-        $this->on($pk,$op,$fk);
+        $this->query .= " INNER JOIN (". $ft ;
         return $this;
     }
 
-    public function leftJoin($ft,$pk,$op,$fk)
+    public function leftJoin($ft)
     {
-        $this->query .= " LEFT JOIN ". $ft;
-        $this->on($pk,$op,$fk);
+        $this->query .= " LEFT JOIN (". $ft ;
         return $this;
     }
-    public function rightJoin($ft,$pk,$op,$fk)
+    public function rightJoin($ft)
     {
-        $this->query .= " RIGHT JOIN ". $ft;
-        $this->on($pk,$op,$fk);
+        $this->query .= " RIGHT JOIN (". $ft ;
         return $this;
     }
+
 
     public function fullJoin ( $ft, $pk, $op, $fk)
     {
@@ -591,9 +587,15 @@ set_columns_cluase
         return $this;
     }
 
-    public function on ($pk, $op, $fk)
+    public function crossJoin($ft)
     {
-        $this->query .= " ON ". $pk ." ".$op ." ". $fk;
+        $this->query .= " CROSS JOIN ".$ft;
+        return $this;
+    }
+
+    public function on($pk,$op,$fk)
+    {
+        $this->query .= ") ON ". $pk ." ".$op ." ". $fk;
         return $this;
     }
 

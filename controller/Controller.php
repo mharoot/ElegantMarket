@@ -9,11 +9,15 @@ ALL GET, PUT, DELETE, POST calls go through here for the website
  error_reporting(E_ALL);
 include_once("model/Customer.php");
 include_once("model/Product.php");
+include_once("model/J1.php");
+include_once("model/J2.php");
 class Controller {
     public $customer_model;
     public $product_model;
+    public $table_j1;
+    public $table_j2;
     public $_routes = ['customer-orders','customers', 'delete-customer', 'insert-customer', 'query-builder', 'reset-customers', 'products', 'product-row-count','products-prev','products-next', 'product-order-desc',
-'product-order-by'];
+'product-order-by','join-demos'];
     
     public function __construct()  
     {  
@@ -23,8 +27,8 @@ class Controller {
         }
         $this->customer_model = new Customer();
         $this->product_model = new Product();
-        
-
+        $this->table_j1 = new J1();
+        $this->table_j2 = new J2();
     }
     
     public function invoke()
@@ -99,6 +103,21 @@ class Controller {
                 $products = $p[1];
                 include 'view/templates/header.php';
                 include 'view/pages/products.php';
+                include 'view/templates/footer.php';
+            }
+
+            if(isset($_GET['join-demos']))
+            {
+                $j1 = $this->table_j1->all();
+                $j2 = $this->table_j2->all();
+                $join = $this->table_j1->join('j2')->on('j1.id','=','j2.id')->get();
+                $leftJoin = $this->table_j1->leftJoin('j2')->on('j1.id','=','j2.id')->get();
+                $rightJoin = $this->table_j1->rightJoin('j2')->on('j1.id','=','j2.id')->get();
+                $fullJoin = $this->table_j1->fullJoin('j2','j1.id','=','j2.id')->get();
+                $crossJoin = $this->table_j1->crossJoin('j2')->get();
+
+                include 'view/templates/header.php';
+                include 'view/pages/join-demos.php';
                 include 'view/templates/footer.php';
             }
 

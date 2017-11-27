@@ -1,6 +1,6 @@
 <?php
 //in command line run: 
-//phpunit --bootstrap model/Customer.php tests/CustomerTest.php --testdox
+// phpunit -d memory_limit=2048M --bootstrap model/Customer.php tests/CustomerTest.php --testdox
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
@@ -104,8 +104,9 @@ class CustomerTest extends TestCase
         $pk = 'Customers.CustomerID';
         $op = '=';
         $fk = 'Orders.CustomerID';
-        $results = $customer->join($ft,$pk,$op,$fk)->get();
+        $results = $customer->join($ft)->on($pk,$op,$fk)->get();
         $this->assertTrue(count($results)>0);
+        unset($customer);
 
     }
 
@@ -115,8 +116,9 @@ class CustomerTest extends TestCase
         $pk = 'Customers.CustomerID';
         $op = '=';
         $fk = 'Orders.CustomerID';
-        $results = $customer->innerJoin($ft,$pk,$op,$fk)->get();
+        $results = $customer->innerJoin($ft)->on($pk,$op,$fk)->get();
         $this->assertTrue(count($results)>0);
+        unset($customer);
 
     }
 
@@ -126,8 +128,9 @@ class CustomerTest extends TestCase
         $pk = 'Customers.CustomerID';
         $op = '=';
         $fk = 'Orders.CustomerID';
-        $results = $customer->leftJoin($ft,$pk,$op,$fk)->get();
+        $results = $customer->leftJoin($ft)->on($pk,$op,$fk)->get();
         $this->assertTrue(count($results)>0);
+        unset($customer);
 
     }
 
@@ -137,8 +140,9 @@ class CustomerTest extends TestCase
         $pk = 'Customers.CustomerID';
         $op = '=';
         $fk = 'Orders.CustomerID';
-        $results = $customer->rightJoin($ft,$pk,$op,$fk)->get();
+        $results = $customer->rightJoin($ft)->on($pk,$op,$fk)->get();
         $this->assertTrue(count($results)>0);
+        unset($customer);
 
     }
 
@@ -149,8 +153,16 @@ class CustomerTest extends TestCase
         $op = '=';
         $fk = 'Orders.CustomerID';
         $results = $customer->fullJoin($ft,$pk,$op,$fk)->get();
-        $this->assertTrue(count($results)>25);
+        $this->assertTrue(count($results)>0);
+        unset($customer);
 
+    }
+    public function test_cross_join(){
+        $customer = new Customer();
+        $ft = 'orders';
+        $results = $customer->crossJoin($ft)->get();
+        $this->assertTrue(count($results)>0);
+        unset($customer);
     }
 
     public function test_full_join_order_by_OrderID()
@@ -162,8 +174,8 @@ class CustomerTest extends TestCase
         $fk = 'Orders.CustomerID';
         $results = $customer->fullJoin($ft,$pk,$op,$fk)->orderBy('OrderID', false)->get();
         $this->assertTrue(count($results)>0);
+        unset($customer);
     }
-
 
 
     

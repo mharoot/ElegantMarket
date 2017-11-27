@@ -15,7 +15,6 @@ class Model extends Database
     function __construct($child_class = NULL) 
     {
         $child_class_that_called_model = '';
-
         if ($this->table_name === NULL )
         {
             $child_class_that_called_model = get_class($child_class);
@@ -264,33 +263,45 @@ private function filterTableName($table_col_name)
         return $this;
     }
 
-    public function join($ft, $pk, $op, $fk)
+    public function join($ft)
     {
-        $this->queryBuilder->join($ft, $pk, $op, $fk);
+        $this->queryBuilder->join($ft);
         return $this;
     }
 
-    public function innerJoin($ft, $pk, $op, $fk)
+    public function innerJoin($ft)
     {
-        $this->queryBuilder->innerJoin($ft, $pk, $op, $fk);
+        $this->queryBuilder->innerJoin($ft);
         return $this;
     }
 
-    public function leftJoin($ft, $pk, $op, $fk)
+    public function leftJoin($ft)
     {
-        $this->queryBuilder->leftJoin($ft, $pk, $op, $fk);
+        $this->queryBuilder->leftJoin($ft);
         return $this;
     }
 
-     public function rightJoin($ft, $pk, $op, $fk)
+     public function rightJoin($ft)
     {
-        $this->queryBuilder->rightJoin($ft, $pk, $op, $fk);
+        $this->queryBuilder->rightJoin($ft);
         return $this;
     }
 
      public function fullJoin( $ft, $pk, $op, $fk)
     {
         $this->queryBuilder->fullJoin( $ft, $pk, $op, $fk);
+        return $this;
+    }
+
+    public function crossJoin($ft)
+    {
+        $this->queryBuilder->crossJoin($ft);
+        return $this;
+    }
+
+    public function on($pk, $op, $fk)
+    {
+        $this->queryBuilder->on($pk, $op, $fk);
         return $this;
     }
 

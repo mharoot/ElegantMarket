@@ -27,6 +27,18 @@
             <li><a href="#or-statements">Or Statements</a></li>
         </ul>
     </li>
+     <li>
+        <a href="#join-clauses">Join Clauses</a>
+        <ul>
+            <li><a href="#inner-join-clauses">Join and Inner Join </a></li>
+            <li><a href="#left-right-join-clauses">Left Join and Right Join </a></li>
+            <li><a href="#full-join-clauses">Full Join </a></li>
+            <li><a href="#cross-join-clauses">Cross Join </a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="#paginate">Pagination</a>
+    </li>
 </ul>
 
 
@@ -230,5 +242,96 @@
 
 <!-- END OF WHERE CLAUSES -->
 
+<!-- JOIN CLAUSES -->
 
+<p><a name="join-clauses"></a></p>
+<h2><a href="#join-clauses">Join Clauses</a></h2>
+<p><a name="inner-join-clauses"></a></p>
+<h4>Join and Inner Join </h4>
+<p> Inner join and join will result in a table which is based on the realtion of two common columns </p>
+
+<pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php"><span class="token comment" spellcheck="true"></span>
+$customer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Customer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $ft <span class="token operator">=</span> <span class="token string">'orders'</span><span class="token punctuation">;</span>
+        $pk <span class="token operator">=</span> <span class="token string">'Customers.CustomerID'</span><span class="token punctuation">;</span>
+        $op <span class="token operator">=</span> <span class="token string">'='</span><span class="token punctuation">;</span>
+        $fk <span class="token operator">=</span> <span class="token string">'Orders.CustomerID'</span><span class="token punctuation">;</span>
+        $results <span class="token operator">=</span> $customer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">innerJoin</span><span class="token punctuation">(</span>$ft<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">on</span><span class="token punctuation">(</span>$pk<span class="token punctuation">,</span>$op<span class="token punctuation">,</span>$fk<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></p></pre>
+
+<pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php"><span class="token comment" spellcheck="true"></span>
+$customer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Customer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $ft <span class="token operator">=</span> <span class="token string">'orders'</span><span class="token punctuation">;</span>
+        $pk <span class="token operator">=</span> <span class="token string">'Customers.CustomerID'</span><span class="token punctuation">;</span>
+        $op <span class="token operator">=</span> <span class="token string">'='</span><span class="token punctuation">;</span>
+        $fk <span class="token operator">=</span> <span class="token string">'Orders.CustomerID'</span><span class="token punctuation">;</span>
+        $results <span class="token operator">=</span> $customer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">join</span><span class="token punctuation">(</span>$ft<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">on</span><span class="token punctuation">(</span>$pk<span class="token punctuation">,</span>$op<span class="token punctuation">,</span>$fk<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></p>></pre>
+
+
+<p><a name="left-right-join-clauses"></a></p>
+<h4>Left Join and Right Join </h4>
+<p> A Left Join return all records from the left table matched with records from the right table and vice versa</p>
+<pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php"><span class="token comment" spellcheck="true"></span>
+$customer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Customer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $ft <span class="token operator">=</span> <span class="token string">'orders'</span><span class="token punctuation">;</span>
+        $pk <span class="token operator">=</span> <span class="token string">'Customers.CustomerID'</span><span class="token punctuation">;</span>
+        $op <span class="token operator">=</span> <span class="token string">'='</span><span class="token punctuation">;</span>
+        $fk <span class="token operator">=</span> <span class="token string">'Orders.CustomerID'</span><span class="token punctuation">;</span>
+        $results <span class="token operator">=</span> $customer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">leftJoin</span><span class="token punctuation">(</span>$ft<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">on</span><span class="token punctuation">(</span>$pk<span class="token punctuation">,</span>$op<span class="token punctuation">,</span>$fk<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></p></pre>
+<pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php"><span class="token comment" spellcheck="true"></span>
+$customer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Customer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $ft <span class="token operator">=</span> <span class="token string">'orders'</span><span class="token punctuation">;</span>
+        $pk <span class="token operator">=</span> <span class="token string">'Customers.CustomerID'</span><span class="token punctuation">;</span>
+        $op <span class="token operator">=</span> <span class="token string">'='</span><span class="token punctuation">;</span>
+        $fk <span class="token operator">=</span> <span class="token string">'Orders.CustomerID'</span><span class="token punctuation">;</span>
+        $results <span class="token operator">=</span> $customer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">rightJoin</span><span class="token punctuation">(</span>$ft<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">on</span><span class="token punctuation">(</span>$pk<span class="token punctuation">,</span>$op<span class="token punctuation">,</span>$fk<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></p></pre>
+
+<p><a name="full-join-clauses"></a></p>
+<h4>Full Join </h4>
+<p> A Full Join return all records whether there is a match in the left or right</p>
+
+<pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php"><span class="token comment" spellcheck="true"></span>
+$customer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Customer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $ft <span class="token operator">=</span> <span class="token string">'orders'</span><span class="token punctuation">;</span>
+        $pk <span class="token operator">=</span> <span class="token string">'Customers.CustomerID'</span><span class="token punctuation">;</span>
+        $op <span class="token operator">=</span> <span class="token string">'='</span><span class="token punctuation">;</span>
+        $fk <span class="token operator">=</span> <span class="token string">'Orders.CustomerID'</span><span class="token punctuation">;</span>
+        $results <span class="token operator">=</span> $customer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">fullJoin</span><span class="token punctuation">(</span>$ft<span class="token punctuation">,</span>$pk<span class="token punctuation">,</span>$op<span class="token punctuation">,</span>$fk<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></p></pre>
+
+<p><a name="cross-join-clauses"></a></p>
+<h4>Cross Join </h4>
+<p> A Cross Join will return the cartesian product of two tables result in the number of rows from left table to be multiplied by the number of rows in the right table</p>
+
+<pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php"><span class="token comment" spellcheck="true"></span>
+$customer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Customer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $ft <span class="token operator">=</span> <span class="token string">'orders'</span><span class="token punctuation">;</span>
+        $results <span class="token operator">=</span> $customer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">crossJoin</span><span class="token punctuation">(</span>$ft<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function"><span class="token keyword">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></p></pre>
+
+<!-- END OF JOIN CLAUSES -->
+
+<!-- PAGINATE -->
+
+<p><a name="paginate"></a></p>
+<h4>Pagination </h4>
+<p> The paginate function will return an array of data indexed at page 1 to the last page which can be accessed
+    through the key <code> 'last_page' </code>. It can be combined at the end of a clause.</p>
+
+    <pre class="CodeFlask__pre  language-php"><p><code class="CodeFlask__code  language-php">                <span class="token function">session_start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                $_SESSION<span class="token punctuation">[</span><span class="token string">'product-row-count'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span>
+                $_SESSION<span class="token punctuation">[</span><span class="token string">'product-order-by'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'ProductID'</span><span class="token punctuation">;</span>
+                $_SESSION<span class="token punctuation">[</span><span class="token string">'product-order-desc'</span><span class="token punctuation">]</span> <span class="token operator">=</span> FALSE<span class="token punctuation">;</span>
+                $_SESSION<span class="token punctuation">[</span><span class="token string">'page'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                $p <span class="token operator">=</span> $<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>product_model<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">orderBy</span><span class="token punctuation">(</span>$_SESSION<span class="token punctuation">[</span><span class="token string">'product-order-by'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>$_SESSION<span class="token punctuation">[</span><span class="token string">'product-order-desc'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">paginate</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">session_write_close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                $products <span class="token operator">=</span> $p<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+                $products_last_page <span class="token operator">=</span> $p<span class="token punctuation">[</span><span class="token string">'last_page'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></p></pre>
+
+
+<!-- END OF PAGINATE -->
 </div>

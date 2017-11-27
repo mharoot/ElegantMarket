@@ -39,6 +39,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
           <a class="dropdown-item" href="./?customers">Customers</a>
           <a class="dropdown-item" href="./?products">Products</a>
+          <a class="dropdown-item" href="./?join-demos">Join Demos</a>
           <form class="dropdown-item" method="POST"><input style="background-color:inherit; border:none; padding:0; margin:0;" type="submit" name="reset-customers" value="Reset Customers"></form>
         </div>
       </li>

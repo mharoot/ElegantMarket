@@ -213,15 +213,19 @@ class CustomerTest extends TestCase
     end of passing joins tests
     */
 
-    // public function test_cross_join_get(){
-    //     $customer = new Customer();
-    //     $ft = 'orders';
-    //     //$pt = $customer->table_name;
-    //     //$ptpk = $pt.'.'.'CustomerID';
-    //     $results = $customer->crossJoin($ft)->get();
-    //     $this->assertTrue(count($results)>0);
-    //     unset($customer);
-    // }
+
+/* TEST FAILED
+    public function test_cross_join_get(){
+        $customer = new Customer();
+        $ft = 'orders';
+        //$pt = $customer->table_name;
+        //$ptpk = $pt.'.'.'CustomerID';
+        $results = $customer->crossJoin($ft)->get();
+        $this->assertTrue(count($results)>0);
+        unset($customer);
+    }
+*/
+
 
     /* TEST PASSED
     public function test_full_join_order_by_OrderID()

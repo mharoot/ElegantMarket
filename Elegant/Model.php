@@ -40,28 +40,36 @@ class Model extends Database
     public function save() // returns boolean
     {
         $result = FALSE;
-        if (!$this->hasWhereClause) {
+        if (!$this->hasWhereClause) 
+        {
             $result = $this->insert($this->getChildProps());
-        } else {
+        } 
+        else 
+        {
             $result = $this->update($this->getChildProps());
         }
         return $result;
     }
 
-    public function getChildProps()
+    public function getChildProps($related_table_name = FALSE)
     {
+
+        $child_props = [];
+
+        // CHILD CLASS
         $class_name = get_class($this->child_class);
         $class_vars = get_class_vars($class_name);
         $object_vars  = get_object_vars($this->child_class);
-        $child_props = [];
+        var_dump($object_vars);
+        
         foreach ($this->child_class_cols as $index => $property_name) 
-        {
-            //echo "$property_name : $value\n";
-            
+        {            
             if( $object_vars[$property_name] !== NULL )
                 $child_props[$property_name] = $object_vars[$property_name];
         }
-        
+
+
+        //var_dump($child_props);
         return $child_props;
     }
 
@@ -242,6 +250,7 @@ private function filterTableName($table_col_name)
     {
         $this->checkTableExist($table_name);
         $this->checkTableExist($junction_table);
+        $this->addRelationProperties($junction_table);
         $this->queryBuilder->manyToMany($table_name,$junction_table,$this_primary_key,$primary_key);
         return $this;
     }
@@ -251,6 +260,7 @@ private function filterTableName($table_col_name)
     public function oneToOne($table_name, $primary_key, $foreign_key) 
     { 
         $this->checkTableExist($table_name);
+        $this->addRelationProperties($table_name);
         $this->queryBuilder->oneToOne($table_name, $primary_key, $foreign_key);
         return $this;
     }
@@ -259,8 +269,25 @@ private function filterTableName($table_col_name)
     public function oneToMany($table_name, $primary_key, $foreign_key) 
     { 
         $this->checkTableExist($table_name);
+        $this->addRelationProperties($table_name);
         $this->queryBuilder->oneToMany($table_name, $primary_key, $foreign_key);
         return $this;
+    }
+
+    private function addRelationProperties($related_table_name)
+    {
+          // RELATED CLASS
+          if ($related_table_name !== FALSE)
+          {
+              
+              $table_cols = $this->describe($related_table_name);
+              //dynamically creating child class properties in for joined class.
+              foreach ($table_cols as $col)
+              {
+                  $this->child_class->{$col} = NULL;
+                  array_push($this->child_class_cols, $col);
+              }
+          }
     }
 
     public function join($ft)

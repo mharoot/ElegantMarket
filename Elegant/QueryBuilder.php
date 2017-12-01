@@ -308,15 +308,6 @@ set_columns_cluase
 */
     public function update($col_val_pairs)
     {
-        /*
-TODO
-one order many details one to many relation
-UPDATE orders LEFT JOIN orderdetails ON orders.OrderID = orderdetails.OrderID
-SET orders.ShipperID = 2, orderdetails.Quantity = 2 
-WHERE orders.OrderID = 10249
-AND orderdetails.OrderID = 10249 
-AND orderdetails.OrderDetailID = 4
-        */
         if (!$this->hasWhereClause)
         {
             return '';
@@ -386,6 +377,7 @@ AND orderdetails.OrderDetailID = 4
         }
         
         $this->resetProperties();
+        var_dump($query);
         return $query;
     }
 
@@ -494,11 +486,11 @@ AND orderdetails.OrderDetailID = 4
 
         if($this->query == '')
         {
-            $this->query = $this->table_name." JOIN ".$junction_table." ON (".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key.") JOIN ". $table_name." ON (".$junction_table.".".$primary_key."=".$table_name.".".$primary_key.")";
+            $this->query = $this->table_name." JOIN ".$junction_table." ON ".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key." JOIN ". $table_name." ON ".$junction_table.".".$primary_key."=".$table_name.".".$primary_key;
         }
         else
         {
-             $this->query .= " JOIN ".$junction_table." ON (".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key.") JOIN ". $table_name." ON (".$junction_table.".".$primary_key."=".$table_name.".".$primary_key.")";
+             $this->query .= " JOIN ".$junction_table." ON ".$this->table_name.".".$this_primary_key."=".$junction_table.".".$this_primary_key." JOIN ". $table_name." ON ".$junction_table.".".$primary_key."=".$table_name.".".$primary_key;
         }
 
         return $this;
@@ -535,7 +527,7 @@ AND orderdetails.OrderDetailID = 4
         // rather than returning null if that customer has not placed any orders.
         // Using a LEFT JOIN is more optimal since you only need to make 1 query rather than 2.  It will save users of elegant
         // the headache of writing additional code.
-        $this->query = " (".$this->table_name." LEFT JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
+        $this->query = " ".$this->table_name." LEFT JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key." ";
         return $this;
         
     }

@@ -14,17 +14,17 @@ class QueryBuilderTest extends TestCase
 
     public function test_one_to_many_where_where_where_update()
     {
-        $query = 'UPDATE orders LEFT JOIN orderdetails ON orders.OrderID = orderdetails.OrderID SET orders.ShipperID = :ShipperID, orderdetails.Quantity = :Quantity WHERE orders.OrderID = :OrderID AND orderdetails.OrderID = :OrderID AND orderdetails.OrderDetailID = :OrderDetailID';
+        $expected_query = 'UPDATE (orders LEFT JOIN orderdetails ON orders.OrderID=orderdetails.OrderID) SET orders.ShipperID = :orders.ShipperID, orderdetails.Quantity = :orderdetails.Quantity WHERE orders.OrderID=:OrderID  AND orderdetails.OrderID=:OrderID  AND orderdetails.OrderDetailID=:OrderDetailID ';
         $table_name = 'orders';
         $queryBuilder = new QueryBuilder($table_name);
-
-        $qbQuery = $queryBuilder->oneToMany('orderdetails','OrderID', 'OrderID')
+        $col_val_pairs = ['orders.ShipperID' => 2, 'orderdetails.Quantity' => 2]; /// bind may not work for these cause of orders. and orderdetails.  ...
+        $actual_query = $queryBuilder->oneToMany('orderdetails','OrderID', 'OrderID')
                                 ->where('orders.OrderID','=')
                                 ->where('orderdetails.OrderID','=')
                                 ->where('orderdetails.OrderDetailID','=')
-                                ->update();
+                                ->update( $col_val_pairs  );
 
-        $this->assertEquals( $qbQuery, $query);
+        $this->assertEquals( $expected_query, $actual_query);
     }
     
     /*

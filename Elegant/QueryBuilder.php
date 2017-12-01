@@ -342,7 +342,23 @@ AND orderdetails.OrderDetailID = 4
         $query_update->execute();
         */
         reset($col_val_pairs);
-        $query ="UPDATE ".$this->table_name." SET"; // "UPDATE books SET"
+        $pos = strpos($this->query, ' WHERE');
+        $query = 'UPDATE';
+        if ($this->isOneToMany)
+        {
+            // multi table updates up to 2 at a time for relationships
+            //$query .= $this->query;
+            $sub_str_relation = substr($this->query, 0, $pos); // " (orders LEFT JOIN orderdetails ON orders.OrderID=orderdetails.OrderID) "
+            $query .= $sub_str_relation."SET";
+
+        } 
+        else
+        {
+            // single table updates
+            $query .= ' '.$this->table_name." SET"; // "UPDATE books SET"
+        }
+
+        
         $prefix = '';
         $n = sizeof($col_val_pairs) - 1;
         $i = 0;
@@ -358,7 +374,17 @@ AND orderdetails.OrderDetailID = 4
         }
         reset($col_val_pairs);
         $i = 0;
-        $query .= $this->query;
+
+        if ( !$this->isOneToOne && !$this->isOneToMany && !$this->isManyToMany )
+        {
+            $query .= $this->query;
+        }
+        else
+        {
+            $append_where = substr($this->query, $pos, strlen($this->query)); 
+            $query .=$append_where;
+        }
+        
         $this->resetProperties();
         return $query;
     }

@@ -11,12 +11,30 @@ include_once('Elegant/QueryBuilder.php');
 
 class QueryBuilderTest extends TestCase
 {
+
+    public function test_one_to_many_where_where_where_update()
+    {
+        $query = 'UPDATE orders LEFT JOIN orderdetails ON orders.OrderID = orderdetails.OrderID SET orders.ShipperID = :ShipperID, orderdetails.Quantity = :Quantity WHERE orders.OrderID = :OrderID AND orderdetails.OrderID = :OrderID AND orderdetails.OrderDetailID = :OrderDetailID';
+        $table_name = 'orders';
+        $queryBuilder = new QueryBuilder($table_name);
+
+        $qbQuery = $queryBuilder->oneToMany('orderdetails','OrderID', 'OrderID')
+                                ->where('orders.OrderID','=')
+                                ->where('orderdetails.OrderID','=')
+                                ->where('orderdetails.OrderDetailID','=')
+                                ->update();
+
+        $this->assertEquals( $qbQuery, $query);
+    }
+    
+    /*
     public function test_all()
     {
         $table_name = 'books';
         $queryBuilder = new QueryBuilder($table_name);
         $this->assertEquals($queryBuilder->all(), 'SELECT * FROM '.$table_name);
     }
+    */
 /*  this test only runs when i turn QueryBuilder->query into public, it passed and is no longer needed
     public function test_select()
     {
@@ -38,7 +56,7 @@ class QueryBuilderTest extends TestCase
     }
 */
 
-
+/*
     public function test_where_get()
     {
         $table_name = 'books';
@@ -217,5 +235,6 @@ class QueryBuilderTest extends TestCase
         $query   = 'SELECT * FROM customers RIGHT JOIN orders ON Customers.CustomerID = Orders.CustomerID';
         $this->assertEquals($qbQuery, $query);
     } 
+    */
 }
 ?>

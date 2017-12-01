@@ -9,8 +9,7 @@ class Model extends Database
     public $table_name = NULL;
     private $child_class_cols = [];
     private $whereColValBindStack = [];
-
-
+    private $hasWhereClause; // model uses this for binding.
 
     function __construct($child_class = NULL) 
     {
@@ -41,7 +40,7 @@ class Model extends Database
     public function save() // returns boolean
     {
         $result = FALSE;
-        if (!$this->queryBuilder->hasWhereClause) {
+        if (!$this->hasWhereClause) {
             $result = $this->insert($this->getChildProps());
         } else {
             $result = $this->update($this->getChildProps());
@@ -175,7 +174,7 @@ class Model extends Database
         // this will go in update, delete, and get 
         // array_pop($this->whereColValBindStack)
         // $this->bind(':'.$col_name, $arg3);
-        
+        $this->hasWhereClause = TRUE;
 
         return $this;
     }
@@ -231,6 +230,7 @@ private function filterTableName($table_col_name)
         $this->queryBuilder->orWhere($col_name, $arg2);
         $col_name = $this->filterTableName($col_name);        
         array_push($this->whereColValBindStack, [$col_name, $arg3]);
+        $this->hasWhereClause = TRUE;
         return $this;
     }
 

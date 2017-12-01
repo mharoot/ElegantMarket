@@ -51,7 +51,6 @@ class Database {
 		}
 		
 		$this->stmt->bindValue($param, strip_tags($value), $type);
-		
 
 	}
 

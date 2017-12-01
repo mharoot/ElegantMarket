@@ -23,10 +23,16 @@ phpunit --bootstrap c:/xampp/htdocs/github/Elegant-Bookstore/Elegant/QueryBuilde
 <code>
 phpunit --bootstrap c:/xampp/htdocs/github/Elegant-Bookstore/model/Book.php tests/BookTest.php --testdox
 </code>
+<code>
+phpunit --bootstrap c:/xampp/htdocs/github/ElegantMarket/master/model/Book.php tests/BookTest.php --testdox
+</code>
 </br>
 <h3>Customer Test</h3>
 <code>
 phpunit --bootstrap c:/xampp/htdocs/github/Elegant-Bookstore/model/Customer.php tests/CustomerTest.php --testdox 
+</code>
+<code>
+phpunit --bootstrap c:/xampp/htdocs/github/ElegantMarket/model/Customer.php tests/CustomerTest.php --testdox 
 </code>
 </br></br>
 

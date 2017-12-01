@@ -9,6 +9,18 @@ include_once('model/Customer.php');
 class CustomerTest extends TestCase
 {
 
+    /* passed
+    public function test_one_to_many_orders_where_where_delete()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 89;
+        $customer = new Customer();
+        $results = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->where('orders.OrderID','>',1)->delete();
+        $this->assertTrue(sizeof($results) > 0);
+    }
+    */
+
     // public function test_all() 
     // {
     //     $customer = new Customer();
@@ -38,16 +50,34 @@ class CustomerTest extends TestCase
     //     $this->assertTrue(sizeof($results) == 0);
     // }
 
-    // public function test_get_customer_order_2()
-    // {
-    //     $pk = 'CustomerID';
-    //     $fk = $pk;
-    //     $customer_id = 90;
-    //     $customer = new Customer();
-    //     $results = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->get();
-    //     $this->assertTrue(sizeof($results) > 0);
 
-    // }
+
+    /* TEST PASSED
+    public function test_one_to_many_orders_where_get()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 89;
+        $customer = new Customer();
+        $results = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->get();
+        $this->assertTrue(sizeof($results) > 0);
+
+    }
+    */
+
+
+    /* TEST PASSED
+    public function test_one_to_many_orders_where_where_get()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 89;
+        $customer = new Customer();
+        $results = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->where('orders.OrderID','>',1)->get();
+        $this->assertTrue(sizeof($results) > 0);
+    }
+    */
+
 
     // public function test_get_customer_order_w_no_orders_2()
     // {
@@ -71,15 +101,30 @@ class CustomerTest extends TestCase
     }
     */
 
-    // public function test_delete_oneToMany_where()
-    // {
-    //     $pk = 'CustomerID';
-    //     $fk = $pk;
-    //     $customer_id = 1;
-    //     $customer = new Customer();
-    //     $result = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->delete();
-    //     $this->assertTrue($result);
-    // }
+    /* TEST PASSED
+    public function test_one_to_many_where_delete()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 1;
+        $customer = new Customer();
+        $result = $customer->oneToMany('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->delete();
+        $this->assertTrue($result);
+    }
+    */
+
+    /* passed
+    public function test_one_to_one_where_delete()
+    {
+        $pk = 'CustomerID';
+        $fk = $pk;
+        $customer_id = 67;
+        $customer = new Customer();
+        $result = $customer->oneToOne('orders', $pk, $fk)->where('orders.'.$fk, '=', $customer_id)->delete();
+        $this->assertTrue($result);
+    }
+    */
+
 
     // public function test_get_customer_orders()
     // {
@@ -88,17 +133,24 @@ class CustomerTest extends TestCase
     //     $this->assertTrue(sizeof($results) > 0);
     // }
 
-    // public function test_reset_customers_table()
-    // {
-    //     include_once('Elegant/Database.php');
-    //     $db_handler = new Database();
-    //     $q = file_get_contents('sql/resetCustomers.sql');
-    //     $db_handler->query($q);
-    //     $this->assertTrue( $db_handler->execute() );
-    // }
+    /*
+    public function test_reset_customers_table()
+    {
+        include_once('Elegant/Database.php');
+        $db_handler = new Database();
+        $q = file_get_contents('sql/resetCustomers.sql');
+        $db_handler->query($q);
+        $this->assertTrue( $db_handler->execute() );
+    }
+    */
 
 
-    public function test_join(){
+
+    /*
+    passing join tests:
+
+    public function test_join()
+    {
         $customer = new Customer();
         $ft = 'orders';
         $pk = 'Customers.CustomerID';
@@ -107,10 +159,10 @@ class CustomerTest extends TestCase
         $results = $customer->join($ft)->on($pk,$op,$fk)->get();
         $this->assertTrue(count($results)>0);
         unset($customer);
-
     }
 
-    public function test_inner_join(){
+    public function test_inner_join()
+    {
         $customer = new Customer();
         $ft = 'orders';
         $pk = 'Customers.CustomerID';
@@ -119,7 +171,6 @@ class CustomerTest extends TestCase
         $results = $customer->innerJoin($ft)->on($pk,$op,$fk)->get();
         $this->assertTrue(count($results)>0);
         unset($customer);
-
     }
 
     public function test_left_join(){
@@ -134,7 +185,8 @@ class CustomerTest extends TestCase
 
     }
 
-    public function test_right_join(){
+    public function test_right_join()
+    {
         $customer = new Customer();
         $ft = 'orders';
         $pk = 'Customers.CustomerID';
@@ -146,7 +198,8 @@ class CustomerTest extends TestCase
 
     }
 
-    public function test_full_join(){
+    public function test_full_join()
+    {
         $customer = new Customer();
         $ft = 'orders';
         $pk = 'Customers.CustomerID';
@@ -157,26 +210,32 @@ class CustomerTest extends TestCase
         unset($customer);
 
     }
-    public function test_cross_join(){
-        $customer = new Customer();
-        $ft = 'orders';
-        $results = $customer->crossJoin($ft)->get();
-        $this->assertTrue(count($results)>0);
-        unset($customer);
-    }
+    end of passing joins tests
+    */
 
+    // public function test_cross_join_get(){
+    //     $customer = new Customer();
+    //     $ft = 'orders';
+    //     //$pt = $customer->table_name;
+    //     //$ptpk = $pt.'.'.'CustomerID';
+    //     $results = $customer->crossJoin($ft)->get();
+    //     $this->assertTrue(count($results)>0);
+    //     unset($customer);
+    // }
+
+    /* TEST PASSED
     public function test_full_join_order_by_OrderID()
     {
         $customer = new Customer();
-        $ft = 'orders';
-        $pk = 'Customers.CustomerID';
-        $op = '=';
-        $fk = 'Orders.CustomerID';
-        $results = $customer->fullJoin($ft,$pk,$op,$fk)->orderBy('OrderID', false)->get();
+        $ft   = 'orders';
+        $ftfk = 'orders.CustomerID';
+        $ptpk = $customer->table_name.'.CustomerID'; // customers.CustomerID
+        $op   = '=';
+        $results = $customer->fullJoin($ft,$ptpk,$op,$ftfk)->orderBy('OrderID', false)->get();
         $this->assertTrue(count($results)>0);
         unset($customer);
     }
-
+    */
 
     
     

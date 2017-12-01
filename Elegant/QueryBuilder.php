@@ -10,7 +10,8 @@ class QueryBuilder
 {
 
 
-    public $hasWhereClause;
+    private $hasSelect;
+    private $hasWhereClause; // model uses this for binding. Anything public in query builder from now on 
     private $isManyToMany;
     private $isOneToOne;
     private $isOneToMany;
@@ -74,10 +75,13 @@ delete_multiple_table_statement2:
  
         if ($this->isOneToMany || $this->isOneToOne)
         {
-            //DELETE customers, orders FROM (customers JOIN orders ON customers.CustomerID=orders.CustomerID) WHERE customers.CustomerID = 90
-            // assuming order of table names does not matter we can simply pop however if we are chaining relations which has been done in
-            // elegant-bookstore then order matters, we have to be careful so maybe we should not chain relations at all? well see.
-            
+            /*
+                DELETE books, genres 
+                FROM books 
+                LEFT JOIN genres 
+                ON books.genre_id=genres.genre_id 
+                WHERE genres.genre_id = 1
+            */
             $query = "DELETE ";
             $query.= array_pop($this->tableNames).', ';
             $query.= array_pop($this->tableNames).' FROM ';
@@ -96,7 +100,7 @@ delete_multiple_table_statement2:
  
         $query .= $this->query;
         $this->resetProperties();
-        // var_dump($query);
+        //var_dump($query);
         return $query;
     }
 
@@ -445,6 +449,12 @@ set_columns_cluase
     {
         /*SELECT * from books INNER JOIN books_authors ON (books.book_id=books_authors.book_id) INNER JOIN authors ON (books_authors.author_id = authors.author_id) where 1*/
 
+        // the assumption here is that for delete, updates were doing a hasMany side
+        // the developer should know that it deletes, updates, and inserts into the junction table only
+        // to insert into table_name the developer needs to access it from within table_name's model. or we may even build the inverse oneToMany function.
+        array_push($this->tableNames, $this->table_name);
+        array_push($this->tableNames, $junction_table);
+
         $this->isManyToMany = TRUE;
 
         if($this->query == '')
@@ -471,8 +481,10 @@ set_columns_cluase
 
 
         /* SELECT * FROM books JOIN genres ON books.genre_id=genres.id */
-        $this->query = $this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key;
+        $this->query = $this->table_name." LEFT JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key;
         
+        array_push($this->tableNames, $this->table_name);
+        array_push($this->tableNames, $table_name);
 
         return $this;
     }
@@ -482,7 +494,13 @@ set_columns_cluase
         // void function will be part of query building
         array_push($this->tableNames, $this->table_name);
         array_push($this->tableNames, $table_name);
-        $this->query = " (".$this->table_name." JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
+
+        // In practical applications, a shipper many want to view a customer's orders and information in a single page. 
+        // In the case that customer does not have any orders placed you may want to still display that customers information 
+        // rather than returning null if that customer has not placed any orders.
+        // Using a LEFT JOIN is more optimal since you only need to make 1 query rather than 2.  It will save users of elegant
+        // the headache of writing additional code.
+        $this->query = " (".$this->table_name." LEFT JOIN ".$table_name." ON ".$this->table_name.".".$primary_key."=".$table_name.".".$foreign_key.") ";
         return $this;
         
     }
@@ -549,6 +567,7 @@ set_columns_cluase
             $this->resetProperties();
         }
         return $final_query;
+        
     }
 
     public function join($ft)
@@ -589,7 +608,18 @@ set_columns_cluase
 
     public function crossJoin($ft)
     {
+        $is_appended = FALSE;
+
+        if ($this->hasSelect)
+
+
+        /* accomadate crossJoin->get chain calls */
+        $this->query = " CROSS JOIN ".$ft;
+
+        /* accomadate select->crossJoin->get chain calls */
         $this->query .= " CROSS JOIN ".$ft;
+
+
         return $this;
     }
 

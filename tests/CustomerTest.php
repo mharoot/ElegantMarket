@@ -133,7 +133,7 @@ class CustomerTest extends TestCase
     //     $this->assertTrue(sizeof($results) > 0);
     // }
 
-    /*
+    
     public function test_reset_customers_table()
     {
         include_once('Elegant/Database.php');
@@ -142,7 +142,7 @@ class CustomerTest extends TestCase
         $db_handler->query($q);
         $this->assertTrue( $db_handler->execute() );
     }
-    */
+    
 
 
 

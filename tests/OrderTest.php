@@ -57,7 +57,7 @@ class OrderTest extends TestCase
     {
         include_once('Elegant/Database.php');
         $db_handler = new Database();
-        $q = file_get_contents('sql/resetCustomers.sql');
+        $q = file_get_contents('sql/resetOrdersAndDetails.sql');
         $db_handler->query($q);
         $this->assertTrue( $db_handler->execute() );
     }
@@ -104,7 +104,7 @@ class OrderTest extends TestCase
     {
         include_once('Elegant/Database.php');
         $db_handler = new Database();
-        $q = file_get_contents('sql/resetCustomers.sql');
+        $q = file_get_contents('sql/resetOrdersAndDetails.sql');
         $db_handler->query($q);
         $this->assertTrue( $db_handler->execute() );
     }
@@ -116,7 +116,7 @@ class OrderTest extends TestCase
         $this->assertTrue( sizeof( $orders = $order->getOrderDetails($order_id) )   >   0 );
         $this->assertEquals($orders[0]->OrderID,        10249);
         $this->assertEquals($orders[0]->OrderDetailID,      4);
-        $this->assertEquals($orders[0]->Quantity,           46);
+        $this->assertEquals($orders[0]->Quantity,           9);
         $this->assertEquals($orders[0]->ShipperID,          1);
     }
    

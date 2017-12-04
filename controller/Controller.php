@@ -186,7 +186,7 @@ class Controller {
             {
                 include_once('Elegant/Database.php');
                 $db_handler = new Database();
-                $q = file_get_contents('sql/resetCustomers.sql');
+                $q = file_get_contents('sql/resetCustomersAndOrders.sql');
                 $db_handler->query($q);
                 $db_handler->execute();
                 $this->redirect();             

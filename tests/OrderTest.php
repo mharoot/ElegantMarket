@@ -109,7 +109,7 @@ class OrderTest extends TestCase
         $this->assertTrue( $db_handler->execute() );
     }
 
-    public function test_get_order_details()
+    public function test_originally_we_have_ShipperID_equals_1_and_Quantity_equals_9()
     {
         $order = new Order();
         $order_id = 10249;

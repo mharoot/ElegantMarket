@@ -1,12 +1,12 @@
 <?php
 //in command line run: 
-// phpunit -d memory_limit=2048M --bootstrap model/Customer.php tests/CustomerTest.php --testdox
+// phpunit -d memory_limit=2048M --bootstrap model/Order.php tests/OrderTest.php --testdox
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-include_once('model/Customer.php');
+include_once('model/Order.php');
 
-class CustomerTest extends TestCase
+class OrderTest extends TestCase
 {
 
 
@@ -66,7 +66,7 @@ AND orderdetails.OrderDetailID=:OrderDetailID
     }
 
    
-    public function test_reset_customers_table()
+    public function test_reset_customers_and_orders_table()
     {
         include_once('Elegant/Database.php');
         $db_handler = new Database();

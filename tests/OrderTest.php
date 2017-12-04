@@ -42,6 +42,16 @@ class OrderTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function test_get_order_details_for_test_above()
+    {
+        $order = new Order();
+        $order_id = 10249;
+        $this->assertTrue( sizeof( $orders = $order->getOrderDetails($order_id) )   >   0 );
+        $this->assertEquals($orders[0]->OrderID,        10249);
+        $this->assertEquals($orders[0]->OrderDetailID,      4);
+        $this->assertEquals($orders[0]->Quantity,           3);
+        $this->assertEquals($orders[0]->ShipperID,          3);
+    }
    
     public function test_reset_customers_and_orders_table()
     {
@@ -59,7 +69,7 @@ class OrderTest extends TestCase
 
         $order->ShipperID = 4;        
         $order_one_to_many_orderdetails = $order->oneToMany('orderdetails','OrderID', 'OrderID');
-        $order->Quantity  = 4; // oneToMany made the property Quantity from orderdetails table available
+        $order->Quantity  = 46; // oneToMany made the property Quantity from orderdetails table available
                                // note: if ambigeous updates are attempted such as $order->OrderID. 
                                // This is not allowed in Elegant.  Work around is to use orderdetails model and orders instead.
 
@@ -84,7 +94,7 @@ class OrderTest extends TestCase
 
         $this->assertEquals($orders[0]->OrderID,        10249);
         $this->assertEquals($orders[0]->OrderDetailID,      4);
-        $this->assertEquals($orders[0]->Quantity,           4);
+        $this->assertEquals($orders[0]->Quantity,           46);
         $this->assertEquals($orders[0]->ShipperID,          4);
     }
 
@@ -99,6 +109,16 @@ class OrderTest extends TestCase
         $this->assertTrue( $db_handler->execute() );
     }
 
+    public function test_get_order_details()
+    {
+        $order = new Order();
+        $order_id = 10249;
+        $this->assertTrue( sizeof( $orders = $order->getOrderDetails($order_id) )   >   0 );
+        $this->assertEquals($orders[0]->OrderID,        10249);
+        $this->assertEquals($orders[0]->OrderDetailID,      4);
+        $this->assertEquals($orders[0]->Quantity,           46);
+        $this->assertEquals($orders[0]->ShipperID,          1);
+    }
    
     
 }

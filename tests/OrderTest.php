@@ -9,50 +9,27 @@ include_once('model/Order.php');
 class OrderTest extends TestCase
 {
 
-
-/*  YOU MAY ONLY INSERT INTO ONE  TABLE AT A TIME a one_to_many insert is unesscessary 
-    public function test_one_to_many_save()
-    {
-        TODO
-        BEGIN;
-            INSERT INTO orders (CustomerID, EmployeeID, ShipperID, OrderDate)
-                VALUES(89, 6, 3, NOW());
-            INSERT INTO orderdetails (OrderID, ProductID, Quantity) 
-                VALUES(LAST_INSERT_ID(), 4, 150); //LAST_INSERT_ID() may not be reliable
-        COMMIT;
-
-        $order = new Order();
-        $order_one_to_many_orderdetails = $order->oneToMany('orderdetails','OrderID', 'OrderID');
-        $order->CustomerID = 89;
-        $order->EmployeeID = 6;
-        $order->ShipperID  = 3;
-        $order->OrderDate  = 'NOW()';
-        $order->OrderID    = 'LAST_INSERT_ID()'; //LAST_INSERT_ID() may not be reliable
-        $order->ProductID  = 4;
-        $order->Quantity   = 150;
-        $result = $order_one_to_many_orderdetails->save();
-
-        $this->assertTrue($result);
-
-    }
-
-    */
-
     public function test_one_to_many_where_where_where_save()
     {
-/*
-UPDATE orders LEFT JOIN orderdetails ON orders.OrderID = orderdetails.OrderID
-SET orders.ShipperID = 2, orderdetails.Quantity = 2 
-WHERE orders.OrderID = 10249
-AND orderdetails.OrderID = 10249 
-AND orderdetails.OrderDetailID = 4
+        /*
 
-UPDATE orders LEFT JOIN orderdetails ON orders.OrderID=orderdetails.OrderID 
-SET ShipperID = :ShipperID, Quantity = :Quantity 
-WHERE orders.OrderID=:OrderID  
-AND orderdetails.OrderID=:OrderID  
-AND orderdetails.OrderDetailID=:OrderDetailID
-*/
+            In QUERY BUILDER:
+
+            UPDATE orders LEFT JOIN orderdetails ON orders.OrderID=orderdetails.OrderID 
+            SET ShipperID = :ShipperID, Quantity = :Quantity 
+            WHERE orders.OrderID=:OrderID  
+            AND orderdetails.OrderID=:OrderID  
+            AND orderdetails.OrderDetailID=:OrderDetailID
+---------------------------------------------------------------------------------------------------
+            In MODEL:
+
+            UPDATE orders LEFT JOIN orderdetails ON orders.OrderID = orderdetails.OrderID
+            SET orders.ShipperID = 2, orderdetails.Quantity = 2 
+            WHERE orders.OrderID = 10249
+            AND orderdetails.OrderID = 10249 
+            AND orderdetails.OrderDetailID = 4
+
+        */
         $order = new Order();
         $order_one_to_many_orderdetails = $order->oneToMany('orderdetails','OrderID', 'OrderID');
         $order->ShipperID = 3;
@@ -74,6 +51,54 @@ AND orderdetails.OrderDetailID=:OrderDetailID
         $db_handler->query($q);
         $this->assertTrue( $db_handler->execute() );
     }
+
+    public function test_one_to_many_where_where_save()
+    {
+
+        $order = new Order();
+
+        $order->ShipperID = 4;        
+        $order_one_to_many_orderdetails = $order->oneToMany('orderdetails','OrderID', 'OrderID');
+        $order->Quantity  = 4; // oneToMany made the property Quantity from orderdetails table available
+                               // note: if ambigeous updates are attempted such as $order->OrderID. 
+                               // This is not allowed in Elegant.  Work around is to use orderdetails model and orders instead.
+
+        $result = $order_one_to_many_orderdetails//->where('orders.OrderID','=', 10249)
+                                ->where('orderdetails.OrderID','=', 10249)
+                                ->where('orderdetails.OrderDetailID','=', 4)
+                                ->save();
+
+        $this->assertTrue($result);
+    }
+
+    public function test_one_to_many_where_where_get()
+    {
+
+        $order = new Order();
+        $order_one_to_many_orderdetails = $order->oneToMany('orderdetails','OrderID', 'OrderID');
+        
+        $orders = $order_one_to_many_orderdetails
+                                ->where('orderdetails.OrderID','=', 10249)
+                                ->where('orderdetails.OrderDetailID','=', 4)
+                                ->get();
+
+        $this->assertEquals($orders[0]->OrderID,        10249);
+        $this->assertEquals($orders[0]->OrderDetailID,      4);
+        $this->assertEquals($orders[0]->Quantity,           4);
+        $this->assertEquals($orders[0]->ShipperID,          4);
+    }
+
+
+
+    public function test_reset_customers_and_orders_tables_again()
+    {
+        include_once('Elegant/Database.php');
+        $db_handler = new Database();
+        $q = file_get_contents('sql/resetCustomers.sql');
+        $db_handler->query($q);
+        $this->assertTrue( $db_handler->execute() );
+    }
+
    
     
 }

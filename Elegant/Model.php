@@ -51,7 +51,7 @@ class Model extends Database
         return $result;
     }
 
-    public function getChildProps($related_table_name = FALSE)
+    public function getChildProps()
     {
 
         $child_props = [];
@@ -60,7 +60,6 @@ class Model extends Database
         $class_name = get_class($this->child_class);
         $class_vars = get_class_vars($class_name);
         $object_vars  = get_object_vars($this->child_class);
-        var_dump($object_vars);
         
         foreach ($this->child_class_cols as $index => $property_name) 
         {            
@@ -69,7 +68,6 @@ class Model extends Database
         }
 
 
-        //var_dump($child_props);
         return $child_props;
     }
 

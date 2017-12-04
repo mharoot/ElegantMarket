@@ -100,7 +100,6 @@ delete_multiple_table_statement2:
  
         $query .= $this->query;
         $this->resetProperties();
-        //var_dump($query);
         return $query;
     }
 
@@ -377,7 +376,6 @@ set_columns_cluase
         }
         
         $this->resetProperties();
-        var_dump($query);
         return $query;
     }
 
